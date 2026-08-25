@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SWAY. Move Different.</title>
+<meta name="description" content="SWAY cropped tees. Spark. Time & Chaos. Marionette. Made in Ghana.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css?v=2">
+<link rel="stylesheet" href="css/layout.css?v=2">
+<link rel="stylesheet" href="css/components.css?v=2">
+</head>
+<body>
+
+<!-- ══ ANNOUNCE BAR ════════════════════════════════ -->
+<div class="announce" id="announce-bar">
+  <div class="announce-slides">
+    <div class="aslide active">Free shipping on orders over <span id="ann-threshold">GHS 600</span></div>
+    <div class="aslide">SS26. Three Series. Cropped. Premium.</div>
+    <div class="aslide">Spark. Time &amp; Chaos. Marionette. Available now.</div>
+  </div>
+</div>
+
+<!-- ══ NAV ════════════════════════════════════════ -->
+<nav id="main-nav">
+  <div class="nav-left">
+    <button class="hamburger" id="ham-btn" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-text-links">
+      <button onclick="showSection('home')">Home</button>
+      <button onclick="showSection('men')">Men</button>
+      <button onclick="showSection('women')">Women</button>
+      <button onclick="showSection('about')">About</button>
+      <button onclick="showSection('lookbook')">Lookbook</button>
+      <button onclick="showSection('account')">Account</button>
+    </div>
+  </div>
+
+  <button class="logo" onclick="showSection('home')" aria-label="SWAY Home"><img src="images/logo-black.png?v=2" alt="SWAY" class="logo-img"></button>
+
+  <div class="nav-right">
+    <button class="currency-btn" onclick="openCurrencyModal()" title="Change currency" aria-label="Currency">
+      <span id="curr-code-display">GHS</span>
+    </button>
+    <button class="nav-icon" onclick="openSearch()" aria-label="Search">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5.5" stroke="#0a0a0a" stroke-width="1.3"/><path d="M13.5 13.5L17 17" stroke="#0a0a0a" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+    <button class="nav-icon" onclick="openWishlist()" aria-label="Wishlist" style="position:relative">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path id="nav-heart" d="M10 17S2 12 2 7a4 4 0 018-2.83A4 4 0 0118 7c0 5-8 10-8 10z" stroke="#0a0a0a" stroke-width="1.4" fill="none"/></svg>
+      <span class="badge" id="wish-badge">0</span>
+    </button>
+    <button class="nav-icon" onclick="openCart()" aria-label="Cart">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 2h2.2l2.6 9h8.2l1.8-6.5H5.5" stroke="#0a0a0a" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8.5" cy="16.5" r="1.2" fill="#0a0a0a"/><circle cx="14.5" cy="16.5" r="1.2" fill="#0a0a0a"/></svg>
+      <span class="badge" id="cart-badge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MOBILE MENU OVERLAY ═══════════════════════ -->
+<div class="mob-menu-overlay" id="mob-menu-overlay" onclick="toggleMenu()"></div>
+
+<!-- ══ MOBILE MENU ════════════════════════════════ -->
+<div class="mobile-menu" id="mobile-menu">
+  <div class="mob-menu-head">
+    <span class="mob-logo"><img src="images/logo-white.png?v=2" alt="SWAY" class="mob-logo-img"></span>
+    <button class="mob-close" onclick="toggleMenu()" aria-label="Close">&times;</button>
+  </div>
+  <div class="mob-nav">
+    <button onclick="showSection('home');toggleMenu()">Home</button>
+    <button onclick="showSection('men');toggleMenu()">Men</button>
+    <button onclick="showSection('women');toggleMenu()">Women</button>
+    <button onclick="showSection('about');toggleMenu()">About</button>
+    <button onclick="showSection('lookbook');toggleMenu()">Lookbook</button>
+    <button onclick="showSection('account');toggleMenu()">Account</button>
+  </div>
+  <div class="mob-nav-secondary">
+    <button onclick="openWishlist();toggleMenu()">Wishlist</button>
+    <button onclick="openSizeGuide();toggleMenu()">Size Guide</button>
+    <button onclick="openSearch();toggleMenu()">Search</button>
+    <button onclick="openCurrencyModal();toggleMenu()"><span id="mob-curr-code">GHS</span> &middot; Change Currency</button>
+  </div>
+  <div class="mob-menu-foot">
+    <a href="#">Instagram</a>
+    <a href="#">TikTok</a>
+  </div>
+</div>
+
+<!-- ══ SEARCH ════════════════════════════════════ -->
+<div class="search-overlay" id="search-overlay">
+  <button class="search-close" onclick="closeSearch()">×</button>
+  <div class="search-box">
+    <input id="search-input" type="text" placeholder="Search products…" oninput="doSearch(this.value)" onkeydown="if(event.key==='Escape')closeSearch()">
+    <button onclick="closeSearch()">
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5.5" stroke="#888" stroke-width="1.3"/><path d="M13.5 13.5L17 17" stroke="#888" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <div class="search-tags-row">
+    <span class="search-tag-lbl">Popular:</span>
+    <button class="search-tag" onclick="doSearch('spark');document.getElementById('search-input').value='spark'">Spark</button>
+    <button class="search-tag" onclick="doSearch('black');document.getElementById('search-input').value='black'">Black</button>
+    <button class="search-tag" onclick="doSearch('white');document.getElementById('search-input').value='white'">White</button>
+    <button class="search-tag" onclick="doSearch('women');document.getElementById('search-input').value='women'">Women</button>
+    <button class="search-tag" onclick="doSearch('men');document.getElementById('search-input').value='men'">Men</button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- ══ CURRENCY MODAL ════════════════════════════ -->
+<div class="currency-modal-bg" id="currency-modal-bg" onclick="if(event.target===this)closeCurrencyModal()">
+  <div class="currency-modal">
+    <div class="currency-modal-head">
+      <h3>Currency</h3>
+      <button class="modal-x" onclick="closeCurrencyModal()">×</button>
+    </div>
+    <p>Prices shown in your selected currency. Payments processed in GHS.</p>
+    <div class="currency-grid" id="currency-grid"></div>
+  </div>
+</div>
+
+<!-- ══ SIZE GUIDE MODAL ══════════════════════════ -->
+<div class="sg-modal-bg" id="sg-modal-bg" onclick="if(event.target===this)closeSizeGuide()">
+  <div class="sg-modal">
+    <button class="modal-close-btn" onclick="closeSizeGuide()">×</button>
+    <h3>Size Guide</h3>
+    <table class="sg-table">
+      <thead><tr><th>Size</th><th>Chest (cm)</th><th>Length (cm)</th><th>Shoulder (cm)</th></tr></thead>
+      <tbody>
+        <tr><td>S</td><td>96 to 101</td><td>52</td><td>42</td></tr>
+        <tr><td>M</td><td>101 to 106</td><td>54</td><td>44</td></tr>
+        <tr><td>L</td><td>106 to 111</td><td>56</td><td>46</td></tr>
+        <tr><td>XL</td><td>111 to 116</td><td>58</td><td>48</td></tr>
+        <tr><td>XXL</td><td>116 to 121</td><td>60</td><td>50</td></tr>
+      </tbody>
+    </table>
+    <p class="sg-note">All measurements in centimetres. Model is 5'11" and wears a Medium. Between sizes? Size up for a relaxed fit.</p>
+  </div>
+</div>
+
+<!-- ══ ACCOUNT MODAL ════════════════════════════ -->
+<div class="account-modal-bg" id="account-modal-bg" onclick="if(event.target===this)closeAccount()">
+  <div class="account-modal">
+    <div class="currency-modal-head">
+      <h3>Account</h3>
+      <button class="modal-x" onclick="closeAccount()">×</button>
+    </div>
+    <div class="account-options">
+      <button class="account-opt" onclick="closeAccount()">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#0a0a0a" stroke-width="1.3"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#0a0a0a" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div><strong>Sign In</strong><span>Access your orders and wishlist</span></div>
+      </button>
+      <button class="account-opt" onclick="closeAccount()">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2v16M2 10h16" stroke="#0a0a0a" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div><strong>Create Account</strong><span>Track orders, save wishlist</span></div>
+      </button>
+      <div class="account-divider"></div>
+      <button class="account-link" onclick="openWishlist();closeAccount()">Wishlist</button>
+      <button class="account-link" onclick="closeAccount()">Order History</button>
+      <button class="account-link" onclick="openSizeGuide();closeAccount()">Size Guide</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN CONTENT — all sections live here
+══════════════════════════════════════════════ -->
+<main id="site-main">
+
+<!-- ─── HOME PAGE ──────────────────────────────── -->
+<section id="page-home" class="site-section">
+
+  <!-- HERO: full editorial model grid -->
+  <div class="hero-section">
+    <div class="hero-grid">
+      <div class="hero-cell large">
+        <div class="model-ph">
+          <div class="mp-icon"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+          <span class="mp-label">wide1.jpg</span>
+        </div>
+        <!-- overlay injected by initHero() -->
+      </div>
+      <div class="hero-right">
+        <div class="hero-cell"><div class="model-ph"><div class="mp-icon"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div><span class="mp-label">model1.jpg</span></div></div>
+        <div class="hero-cell"><div class="model-ph"><div class="mp-icon"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div><span class="mp-label">model2.jpg</span></div></div>
+        <div class="hero-cell"><div class="model-ph"><div class="mp-icon"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div><span class="mp-label">model3.jpg</span></div></div>
+        <div class="hero-cell"><div class="model-ph"><div class="mp-icon"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div><span class="mp-label">model4.jpg</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT SWAY -->
+  <div class="home-about reveal">
+    <div class="home-about-inner">
+      <div class="home-about-text">
+        <p class="home-about-label">About SWAY</p>
+        <h2 class="home-about-title">Clothing that moves with you.</h2>
+        <p class="home-about-body">SWAY was built around one idea. Take the everyday essential and give it a different silhouette. The cropped tee is not a compromise. It is a statement. Full-back graphics. Made in Ghana.</p>
+        <button class="home-about-btn" onclick="showSection('about')">Read More</button>
+      </div>
+      <div class="home-about-stat-grid">
+        <div class="home-stat"><span class="home-stat-num">100%</span><span class="home-stat-label">Original Designs</span></div>
+        <div class="home-stat"><span class="home-stat-num">3</span><span class="home-stat-label">Series</span></div>
+        <div class="home-stat"><span class="home-stat-num">3</span><span class="home-stat-label">Designs</span></div>
+        <div class="home-stat"><span class="home-stat-num">GH</span><span class="home-stat-label">Made in Ghana</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERIES SHOWCASE -->
+  <div class="series-section reveal">
+    <div class="series-label-row">
+      <p class="section-eyebrow">The Collections</p>
+      <h2 class="section-heading-lg">Three Series. One Silhouette.</h2>
+    </div>
+    <div class="series-grid">
+      <div class="series-card" onclick="showSection('men')">
+        <div class="series-card-img">
+          <img src="images/series-spark.jpg" alt="Spark Series" onerror="this.style.display='none'">
+          <div class="series-ph-word">SPARK</div>
+        </div>
+        <div class="series-card-info">
+          <p class="series-card-label">Series 01</p>
+          <h3 class="series-card-name">Spark Series</h3>
+          <p class="series-card-desc">The signature match graphic. White or black tee, spark in orange, blue, or pink.</p>
+          <button class="series-card-btn">Shop Now</button>
+        </div>
+      </div>
+      <div class="series-card" onclick="showSection('men')">
+        <div class="series-card-img">
+          <img src="images/series-timechaos.jpg" alt="Time and Chaos Series" onerror="this.style.display='none'">
+          <div class="series-ph-word">TIME</div>
+        </div>
+        <div class="series-card-info">
+          <p class="series-card-label">Series 02</p>
+          <h3 class="series-card-name">Time &amp; Chaos</h3>
+          <p class="series-card-desc">Hourglass, tide, and coordinate graphics. White or black. Calm design, chaotic energy.</p>
+          <button class="series-card-btn">Shop Now</button>
+        </div>
+      </div>
+      <div class="series-card" onclick="showSection('men')">
+        <div class="series-card-img">
+          <img src="images/series-marionette.jpg" alt="Marionette Series" onerror="this.style.display='none'">
+          <div class="series-ph-word">PUPPET</div>
+        </div>
+        <div class="series-card-info">
+          <p class="series-card-label">Series 03</p>
+          <h3 class="series-card-name">Marionette</h3>
+          <p class="series-card-desc">Skeleton hands pulling strings. Dark fantasy across the full back. White or black.</p>
+          <button class="series-card-btn">Shop Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOP BY GENDER -->
+  <div class="gender-split reveal">
+    <div class="gender-panel men-panel" onclick="showSection('men')">
+      <div class="gender-panel-ph" id="men-panel-img">
+        <div class="model-ph"><div class="mp-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div></div>
+      </div>
+      <div class="gender-panel-overlay">
+        <p class="gender-panel-label">Men's Collection</p>
+        <h3 class="gender-panel-title">Shop Men</h3>
+        <button class="gender-panel-btn" onclick="showSection('men');event.stopPropagation()">View All</button>
+      </div>
+    </div>
+    <div class="gender-panel women-panel" onclick="showSection('women')">
+      <div class="gender-panel-ph" id="women-panel-img">
+        <div class="model-ph"><div class="mp-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/><path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,.3)" stroke-width="1.2" stroke-linecap="round"/></svg></div></div>
+      </div>
+      <div class="gender-panel-overlay">
+        <p class="gender-panel-label">Women's Collection</p>
+        <h3 class="gender-panel-title">Shop Women</h3>
+        <button class="gender-panel-btn" onclick="showSection('women');event.stopPropagation()">View All</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW ARRIVALS STRIP -->
+  <div class="home-new-section reveal">
+    <div class="home-section-head">
+      <p class="section-eyebrow">Just Dropped</p>
+      <h2 class="section-heading-lg">New Arrivals</h2>
+      <button class="section-link" onclick="showSection('men')">View All</button>
+    </div>
+    <div class="h-scroll-wrap">
+      <div class="home-product-row" id="home-new-row"></div>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <div class="newsletter" id="newsletter-section">
+    <h2>First Access</h2>
+    <p>New drops, limited releases, and offers, straight to your inbox.</p>
+    <div class="newsletter-form">
+      <input type="email" id="nl-email" placeholder="Your email address">
+      <button onclick="submitNewsletter()">Join</button>
+    </div>
+    <p class="nl-success" id="nl-success">You're in. Welcome to SWAY.</p>
+  </div>
+
+</section>
+
+<!-- ─── MEN PAGE ────────────────────────────────── -->
+<section id="page-men" class="site-section" style="display:none">
+  <div class="shop-page-header">
+    <h1 class="shop-page-title">Men</h1>
+  </div>
+  <div class="shop-controls">
+    <div class="filter-group" id="men-filter-group">
+      <button class="filter-pill active" onclick="setSeriesFilter('all',this,'men')">All</button>
+      <button class="filter-pill" onclick="setSeriesFilter('spark',this,'men')">Spark</button>
+      <button class="filter-pill" onclick="setSeriesFilter('timechaos',this,'men')">Time &amp; Chaos</button>
+      <button class="filter-pill" onclick="setSeriesFilter('marionette',this,'men')">Marionette</button>
+    </div>
+    <div class="sort-wrap">
+      <span class="item-count" id="men-count"></span>
+      <select class="sort-select" onchange="setSortFor('men',this.value)">
+        <option value="default">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name">Name A to Z</option>
+      </select>
+    </div>
+  </div>
+  <div class="product-grid" id="men-grid"></div>
+</section>
+
+<!-- ─── WOMEN PAGE ──────────────────────────────── -->
+<section id="page-women" class="site-section" style="display:none">
+  <div class="shop-page-header">
+    <h1 class="shop-page-title">Women</h1>
+  </div>
+  <div class="shop-controls">
+    <div class="filter-group" id="women-filter-group">
+      <button class="filter-pill active" onclick="setSeriesFilter('all',this,'women')">All</button>
+      <button class="filter-pill" onclick="setSeriesFilter('spark',this,'women')">Spark</button>
+      <button class="filter-pill" onclick="setSeriesFilter('timechaos',this,'women')">Time &amp; Chaos</button>
+      <button class="filter-pill" onclick="setSeriesFilter('marionette',this,'women')">Marionette</button>
+    </div>
+    <div class="sort-wrap">
+      <span class="item-count" id="women-count"></span>
+      <select class="sort-select" onchange="setSortFor('women',this.value)">
+        <option value="default">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name">Name A to Z</option>
+      </select>
+    </div>
+  </div>
+  <div class="product-grid" id="women-grid"></div>
+</section>
+
+<!-- ─── ABOUT PAGE ──────────────────────────────── -->
+<section id="page-about" class="site-section" style="display:none">
+
+  <div class="about-hero">
+    <img class="about-hero-bg" src="images/about-hero.jpg" alt="" onerror="this.style.display='none'">
+    <div class="about-hero-inner">
+      <p class="section-eyebrow" style="color:rgba(255,255,255,.4)">Made in Ghana</p>
+      <h1 class="about-title">Move Different.</h1>
+      <p class="about-sub">Cropped. Clean. Unapologetic.</p>
+    </div>
+  </div>
+
+  <div class="about-body-section">
+    <div class="about-body-inner">
+      <div class="about-body-text">
+        <h2>The Idea</h2>
+        <p>Streetwear isn't defined by a zip code. It's defined by attitude. Born in Accra and built for the global underground, SWAY exists to disrupt the ordinary. We looked at the everyday essential tee and asked one question. What if it had a pulse?</p>
+        <p>We threw out the rulebook of standard fits. For women, our cropped tees sit intentionally above the hip. Sharp, structural, and unapologetic. For men, our waist-length silhouettes anchor an outfit with effortless weight and presence. This isn't fast fashion churned out by algorithms. It's deliberate design for people who move differently, no matter where they are in the world.</p>
+        <p>SWAY is an attitude toward how you move through the world. It's about breaking away from monotonous basics to embrace deliberate cuts, heavy textures, and symbolic storytelling. Our graphics explore the friction between control and chaos, time, and raw energy. When you wear SWAY, you're defining your entire aesthetic.</p>
+        <h2 style="margin-top:32px">The Craft &amp; The Culture</h2>
+        <p>Every single piece starts as a blank canvas and is brought to life through hand-screen-printing in Ghana. We build heavier because true quality has weight. It holds its shape, breathes with you, and ages like a classic vintage find. We don't do tiny chest logos or forgettable basics. Every shirt features a full-back narrative. Wearable art that sparks conversations from Accra to anywhere you find yourself.</p>
+        <h2 style="margin-top:32px">For the Culture, Across Generations</h2>
+        <p>Great style doesn't have an age limit. Whether you've been collecting vintage streetwear for decades or you're defining your aesthetic for the first time, SWAY speaks a universal language. It's for the risk-takers, the late-night creators, and anyone who refuses to blend into the background.</p>
+        <p class="about-closer">This is SWAY. Crafted in Accra. Worn worldwide.</p>
+      </div>
+      <div class="about-stats-col">
+        <div class="about-stat-card"><span class="about-stat-big">100%</span><span class="about-stat-lbl">Original Designs</span></div>
+        <div class="about-stat-card"><span class="about-stat-big">3</span><span class="about-stat-lbl">Original Series</span></div>
+        <div class="about-stat-card"><span class="about-stat-big">3</span><span class="about-stat-lbl">Signature Designs</span></div>
+        <div class="about-stat-card"><span class="about-stat-big">GH</span><span class="about-stat-lbl">Designed &amp; Made in Ghana</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-series-strip">
+    <div class="about-strip-inner">
+      <div class="about-series-item">
+        <span class="about-series-num">Series 01</span>
+        <h3>Spark Series</h3>
+        <p class="about-series-vibe">High-voltage energy, raw expression, and untamed ignition.</p>
+        <p>The signature match graphic across the full back. White or black tee, with the spark in orange, blue, or pink.</p>
+        <p class="about-series-style"><strong>Style it:</strong> distressed jorts or baggy cargo denim and chunky sneakers, letting the vibrant colorways and fiery graphics command the room.</p>
+      </div>
+      <div class="about-series-item">
+        <span class="about-series-num">Series 02</span>
+        <h3>Time &amp; Chaos</h3>
+        <p class="about-series-vibe">A meditation on fleeting moments, cosmic alignment, and controlled disorder.</p>
+        <p>Surreal hourglass graphics, shifting tide visuals, and precise coordinate details. Calm, clean layouts over chaotic underlying energy. Stark Black and White.</p>
+        <p class="about-series-style"><strong>Style it:</strong> under an open plaid flannel with relaxed-fit denim and a beanie for the ultimate utilitarian Y2K streetwear look.</p>
+      </div>
+      <div class="about-series-item">
+        <span class="about-series-num">Series 03</span>
+        <h3>Marionette</h3>
+        <p class="about-series-vibe">Dark fantasy, psychological depth, and the invisible forces that pull our strings.</p>
+        <p>Skeleton hands pulling structural strings across the back. A study in control and autonomy. White or black.</p>
+        <p class="about-series-style"><strong>Style it:</strong> solo with dark baggy jeans, silver accessories, and boots or skate shoes to let the back graphic pop.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="newsletter" style="margin-top:0">
+    <h2>First Access</h2>
+    <p>New drops, limited releases, and offers, straight to your inbox.</p>
+    <div class="newsletter-form">
+      <input type="email" id="nl-email-about" placeholder="Your email address">
+      <button onclick="submitNLAbout()">Join</button>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ─── LOOKBOOK PAGE ───────────────────────────── -->
+<section id="page-lookbook" class="site-section" style="display:none">
+  <div class="lookbook-head">
+    <p class="section-eyebrow">SS26 Campaign</p>
+    <h1 class="lookbook-title">Lookbook</h1>
+    <p class="lookbook-sub">The SWAY campaign. Move different.</p>
+  </div>
+  <div class="lookbook-gallery" id="lookbook-gallery"></div>
+  <div class="lookbook-cta">
+    <button onclick="showSection('men')">Shop Men</button>
+    <button onclick="showSection('women')">Shop Women</button>
+  </div>
+</section>
+
+<!-- ─── ACCOUNT PAGE ────────────────────────────── -->
+<section id="page-account" class="site-section" style="display:none">
+  <div class="account-page">
+    <div class="account-page-head">
+      <h1 class="shop-page-title">Account</h1>
+    </div>
+    <div class="account-page-grid">
+      <div class="account-auth-card">
+        <h2>Sign In</h2>
+        <p class="account-auth-sub">Access your orders, wishlist, and saved details.</p>
+        <div class="account-form">
+          <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
+          <div class="form-field"><label>Password</label><input type="password" id="signin-pass" placeholder="••••••••"></div>
+          <button class="account-btn-primary" onclick="showToast('Sign in coming soon')">Sign In</button>
+          <button class="account-btn-link" onclick="showToast('Password reset coming soon')">Forgot password?</button>
+        </div>
+      </div>
+      <div class="account-auth-card">
+        <h2>Create Account</h2>
+        <p class="account-auth-sub">Join SWAY for first access to drops and faster checkout.</p>
+        <div class="account-form">
+          <div class="form-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Kofi Mensah"></div>
+          <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
+          <div class="form-field"><label>Password</label><input type="password" id="signup-pass" placeholder="Choose a password"></div>
+          <button class="account-btn-primary" onclick="showToast('Account creation coming soon')">Create Account</button>
+        </div>
+      </div>
+    </div>
+    <div class="account-links-row">
+      <button class="account-quick-link" onclick="openWishlist()">
+        <span class="aql-title">Wishlist</span>
+        <span class="aql-sub">Your saved items</span>
+      </button>
+      <button class="account-quick-link" onclick="showToast('Order history coming soon')">
+        <span class="aql-title">Order History</span>
+        <span class="aql-sub">Track your orders</span>
+      </button>
+      <button class="account-quick-link" onclick="openSizeGuide()">
+        <span class="aql-title">Size Guide</span>
+        <span class="aql-sub">Find your fit</span>
+      </button>
+      <button class="account-quick-link" onclick="openCurrencyModal()">
+        <span class="aql-title">Currency</span>
+        <span class="aql-sub">Change your currency</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══ FOOTER (shows on home + about) ════════════ -->
+<footer id="main-footer">
+  <div class="footer-brand-col">
+    <span class="footer-logo"><img src="images/logo-white.png?v=2" alt="SWAY" class="footer-logo-img"></span>
+    <p class="footer-tagline">Premium streetwear. Made in Ghana.</p>
+    <div class="footer-social" style="margin-top:16px">
+      <a href="#">Instagram</a><a href="#">TikTok</a>
+    </div>
+  </div>
+  <div class="footer-col">
+    <h4>Shop</h4>
+    <button onclick="showSection('men')">Men</button>
+    <button onclick="showSection('women')">Women</button>
+    <button onclick="showSection('men')">New Arrivals</button>
+  </div>
+  <div class="footer-col">
+    <h4>Info</h4>
+    <button onclick="showSection('about')">About</button>
+    <button onclick="openSizeGuide()">Size Guide</button>
+    <a href="#">Shipping</a>
+    <a href="#">Returns</a>
+  </div>
+  <div class="footer-col">
+    <h4>Contact</h4>
+    <a href="mailto:hello@sway.store">hello@sway.store</a>
+    <a href="#">WhatsApp</a>
+    <a href="#">Accra, Ghana</a>
+  </div>
+</footer>
+<div class="footer-bottom" id="footer-bottom">
+  <span>© 2026 SWAY · <a href="admin.html" style="color:inherit;opacity:.5;text-decoration:none">Admin</a></span>
+  <div class="pay-chips">
+    <span class="pay-chip">MTN MoMo</span>
+    <span class="pay-chip">Vodafone Cash</span>
+    <span class="pay-chip">Paystack</span>
+  </div>
+  <span>Made in Ghana</span>
+</div>
+
+<!-- ══ PDP ════════════════════════════════════════ -->
+<div class="pdp" id="pdp">
+  <div class="pdp-inner">
+    <button class="pdp-back" onclick="closePDP()">
+      <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M15 5H1M5 1L1 5l4 4" stroke="#999" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Back
+    </button>
+    <div class="pdp-layout">
+      <div class="pdp-gallery">
+        <div class="pdp-main-img" id="pdp-main-wrap"></div>
+        <div class="pdp-thumbs" id="pdp-thumbs"></div>
+      </div>
+      <div class="pdp-info">
+        <div class="pdp-badges" id="pdp-badges"></div>
+        <div class="pdp-tag" id="pdp-tag"></div>
+        <h1 class="pdp-name" id="pdp-name"></h1>
+        <div class="pdp-price" id="pdp-price"></div>
+        <div class="pdp-price-secondary" id="pdp-price-secondary"></div>
+        <div class="pdp-stock" id="pdp-stock"></div>
+        <p class="pdp-desc" id="pdp-desc"></p>
+        <div class="pdp-label">Color: <span id="pdp-color-label" style="font-weight:400;text-transform:none;letter-spacing:0;color:#888"></span></div>
+        <div class="pdp-colors" id="pdp-colors"></div>
+        <div class="pdp-size-row">
+          <div class="pdp-label" style="margin-bottom:0">Size</div>
+          <button class="pdp-size-guide-btn" onclick="openSizeGuide()">Size Guide</button>
+        </div>
+        <div class="pdp-sizes" id="pdp-sizes" style="margin-top:10px"></div>
+        <div class="pdp-qty-row">
+          <span class="pdp-qty-label">Qty</span>
+          <div class="pdp-qty-ctrl">
+            <button onclick="pdpChangeQty(-1)">−</button>
+            <span id="pdp-qty-val">1</span>
+            <button onclick="pdpChangeQty(1)">+</button>
+          </div>
+        </div>
+        <div class="pdp-actions">
+          <button class="pdp-add-btn" onclick="pdpAddToCart()">Add to Cart</button>
+          <button class="pdp-buy-btn" onclick="pdpBuyNow()">Buy Now</button>
+          <button class="pdp-wish-btn" id="pdp-wish-btn" onclick="pdpToggleWish()">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path id="pdp-heart" d="M10 17S2 12 2 7a4 4 0 018-2.83A4 4 0 0118 7c0 5-8 10-8 10z" stroke="#0a0a0a" stroke-width="1.4" fill="none"/></svg>
+          </button>
+        </div>
+        <div class="pdp-share">
+          <button class="pdp-share-btn" onclick="shareProduct('whatsapp')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.122 1.527 5.854L.057 23.927l6.218-1.635A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.848 0-3.57-.497-5.051-1.364l-.361-.214-3.741.982.999-3.648-.235-.374A9.936 9.936 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+            WhatsApp
+          </button>
+          <button class="pdp-share-btn" onclick="shareProduct('copy')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy Link
+          </button>
+        </div>
+        <div class="pdp-accordion">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Product Details</span><span class="acc-icon">+</span></button><div class="acc-body open"><div class="acc-body-inner" id="acc-details"></div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Fit &amp; Sizing</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Cropped fit that sits above the hip. Model is 5'10" / 178cm and wears a Medium. Size up for an oversized look.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Shipping &amp; Returns</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Free shipping on orders over GHS 600. Accra: 1 to 2 days. Kumasi and other regions: 2 to 4 days. International: 7 to 14 days. Returns within 14 days, unworn and in original packaging.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Care</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Machine wash cold, inside out. Do not bleach. Tumble dry low. Do not iron on the graphic.</div></div></div>
+        </div>
+        <div class="pdp-related" id="pdp-related" style="display:none">
+          <div class="pdp-related-title">You May Also Like</div>
+          <div class="pdp-related-scroll" id="pdp-related-scroll"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pdp-mobile-sticky" id="pdp-mobile-sticky">
+  <button onclick="pdpAddToCart()">Add to Cart</button>
+</div>
+
+<!-- ══ WISHLIST ═══════════════════════════════════ -->
+<div class="wishlist-page" id="wishlist-page">
+  <div class="wl-inner">
+    <button class="wl-back" onclick="closeWishlist()">
+      <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M15 5H1M5 1L1 5l4 4" stroke="#999" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Continue Shopping
+    </button>
+    <div class="wl-title">Wishlist</div>
+    <div class="wl-count" id="wl-count"></div>
+    <div id="wl-content"></div>
+  </div>
+</div>
+
+<!-- ══ CART ══════════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div class="drawer-head">
+    <h2>Your Cart</h2>
+    <button class="close-btn" onclick="closeCart()">×</button>
+  </div>
+  <div class="free-ship-bar">
+    <div class="free-ship-text" id="free-ship-text"></div>
+    <div class="free-ship-track"><div class="free-ship-fill" id="free-ship-fill"></div></div>
+  </div>
+  <div class="drawer-body" id="cart-body"><div class="cart-empty">Nothing in your cart yet.</div></div>
+  <div class="drawer-foot" id="cart-foot" style="display:none">
+    <div class="promo-row">
+      <input class="promo-input" id="promo-input" placeholder="Promo code" onkeydown="if(event.key==='Enter')applyPromo()">
+      <button class="promo-btn" onclick="applyPromo()">Apply</button>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-row"><span class="label">Subtotal</span><span id="subtotal-val"></span></div>
+      <div class="cart-row"><span class="label">Shipping</span><span id="shipping-val">Free</span></div>
+      <div class="cart-row" id="promo-row-cart" style="display:none;color:#c05a7a"><span>Promo</span><span id="promo-disc-val"></span></div>
+      <div class="cart-row total"><span>Total</span><span id="total-val"></span></div>
+    </div>
+    <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
+    <div class="pay-options">
+      <span class="pay-badge">MTN MoMo</span>
+      <span class="pay-badge">Vodafone Cash</span>
+      <span class="pay-badge">Paystack</span>
+      <span class="pay-badge">Bank Transfer</span>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE CART BAR -->
+<div class="mobile-cart-sticky" id="mobile-cart-sticky" style="display:none">
+  <button type="button" id="mobile-cart-btn">
+    <span id="mobile-cart-lbl">View Cart (0)</span>
+    <span id="mobile-cart-total">GHS 0</span>
+  </button>
+</div>
+
+<!-- ══ CHECKOUT ════════════════════════════════════ -->
+<div class="checkout-page" id="checkout-page">
+  <div class="checkout-inner">
+    <div class="co-logo"><img src="images/logo-black.png?v=2" alt="SWAY" class="co-logo-img"></div>
+    <button class="checkout-back" onclick="closeCheckout()">
+      <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M15 5H1M5 1L1 5l4 4" stroke="#999" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Back to Cart
+    </button>
+    <div class="checkout-steps">
+      <span class="cstep active" id="cstep1">Contact</span>
+      <span style="color:#ddd;margin:0 6px">›</span>
+      <span class="cstep" id="cstep2">Shipping</span>
+      <span style="color:#ddd;margin:0 6px">›</span>
+      <span class="cstep" id="cstep3">Payment</span>
+    </div>
+    <div class="checkout-layout">
+      <div>
+        <div id="co-step1">
+          <div class="section-heading">Contact</div>
+          <div class="form-field"><label>Full Name</label><input id="co-name" type="text" placeholder="Kofi Mensah" autocomplete="name"></div>
+          <div class="form-row-2">
+            <div class="form-field"><label>Email</label><input id="co-email" type="email" placeholder="you@email.com" autocomplete="email"></div>
+            <div class="form-field"><label>Phone</label><input id="co-phone" type="tel" placeholder="+233 24 000 0000" autocomplete="tel"></div>
+          </div>
+          <button class="place-order-btn" onclick="coNext(1)">Continue to Shipping →</button>
+        </div>
+        <div id="co-step2" style="display:none">
+          <div class="section-heading">Shipping</div>
+          <div class="form-field"><label>Country</label>
+            <select id="co-country">
+              <option value="GH">Ghana</option><option value="NG">Nigeria</option>
+              <option value="KE">Kenya</option><option value="ZA">South Africa</option>
+              <option value="GB">United Kingdom</option><option value="US">United States</option>
+              <option value="CA">Canada</option><option value="AE">UAE</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+          <div class="form-field"><label>City</label><input id="co-city" type="text" placeholder="Accra" autocomplete="address-level2"></div>
+          <div class="form-field"><label>Address</label><input id="co-address" type="text" placeholder="Street address" autocomplete="street-address"></div>
+          <div class="form-row-2">
+            <div class="form-field"><label>Region</label><input id="co-region" type="text" placeholder="Greater Accra" autocomplete="address-level1"></div>
+            <div class="form-field"><label>Postal (optional)</label><input id="co-postal" type="text" placeholder="GA-123"></div>
+          </div>
+          <div class="form-field"><label>Delivery</label>
+            <select id="co-delivery">
+              <option value="standard">Standard. Free (3 to 5 days)</option>
+              <option value="express">Express. GHS 30 (1 to 2 days)</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(2)">← Back</button>
+            <button class="place-order-btn" style="flex:1" onclick="coNext(2)">Continue to Payment →</button>
+          </div>
+        </div>
+        <div id="co-step3" style="display:none">
+          <div class="section-heading">Payment</div>
+          <div class="payment-tabs">
+            <button class="payment-tab active" onclick="setPayTab('momo',this)">Mobile Money</button>
+            <button class="payment-tab" onclick="setPayTab('card',this)">Card</button>
+          </div>
+          <div class="payment-fields" id="pay-momo">
+            <div class="form-field"><label>Network</label><select id="momo-network"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
+            <div class="form-field"><label>MoMo Number</label><input id="momo-number" type="tel" placeholder="+233 24 000 0000"></div>
+            <p style="font-size:12px;color:#aaa;margin-top:8px">You will receive a prompt on your phone to approve the payment.</p>
+          </div>
+          <div class="payment-fields" id="pay-card" style="display:none">
+            <div class="form-field"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
+            <div class="form-row-2">
+              <div class="form-field"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
+              <div class="form-field"><label>CVV</label><input type="text" placeholder="•••" maxlength="4"></div>
+            </div>
+            <div class="form-field"><label>Name on Card</label><input type="text" placeholder="KOFI MENSAH"></div>
+            <p style="font-size:11px;color:#aaa;margin-top:6px">Secured via Paystack. Card details never stored.</p>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
+            <button class="place-order-btn" style="flex:1" id="place-order-btn" onclick="placeOrder()">Place Order</button>
+          </div>
+        </div>
+      </div>
+      <div class="order-summary-panel">
+        <div class="os-title">Order Summary</div>
+        <div id="os-items"></div>
+        <hr class="os-divider">
+        <div class="os-row"><span class="label">Subtotal</span><span id="os-subtotal"></span></div>
+        <div class="os-row"><span class="label">Shipping</span><span id="os-shipping">Free</span></div>
+        <div class="os-row" id="os-promo-row" style="display:none;color:#c05a7a"><span>Promo</span><span id="os-promo-val"></span></div>
+        <div class="os-total"><span>Total</span><span id="os-total"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDER CONFIRMED ════════════════════════════ -->
+<div class="order-confirmed" id="order-confirmed">
+  <div class="oc-inner">
+    <div class="oc-icon"><svg width="28" height="22" viewBox="0 0 28 22" fill="none"><path d="M2 11l8 8L26 2" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="oc-tag">Order Confirmed</div>
+    <div class="oc-title">Thank You.</div>
+    <div class="oc-sub" id="oc-sub"></div>
+    <div class="oc-details" id="oc-details"></div>
+    <button class="oc-continue" onclick="document.getElementById('order-confirmed').classList.remove('open');document.body.style.overflow=''">Continue Shopping</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ SCRIPTS ════════════════════════════════════ -->
+<script src="js/products.js"></script>
+<script src="js/currency.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pdp.js"></script>
+<script src="js/pages.js"></script>
+<script src="js/checkout.js"></script>
+<script>
+/* ── Account modal ── */
+function openAccount()  { showSection('account'); }
+function closeAccount() { document.getElementById('account-modal-bg').classList.remove('open'); }
+
+/* ── Site-level section navigation ── */
+const SECTIONS = ['home','men','women','about','lookbook','account'];
+let activeSection = 'home';
+let menSeries = 'all', womenSeries = 'all';
+let menSort = 'default', womenSort = 'default';
+
+function showSection(name, fromHistory) {
+  SECTIONS.forEach(s => {
+    const el = document.getElementById('page-' + s);
+    if (el) el.style.display = s === name ? 'block' : 'none';
+  });
+  activeSection = name;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
+  // footer only on home + about + account
+  const footer = document.getElementById('main-footer');
+  const footerBottom = document.getElementById('footer-bottom');
+  const showFooter = (name === 'home' || name === 'about' || name === 'account' || name === 'lookbook');
+  if (footer) footer.style.display = showFooter ? '' : 'none';
+  if (footerBottom) footerBottom.style.display = showFooter ? '' : 'none';
+
+  // nav link states — match by button text
+  document.querySelectorAll('.nav-text-links button').forEach(b => {
+    const label = b.textContent.trim().toLowerCase();
+    b.classList.toggle('active', label === name);
+  });
+
+  // render page content
+  if (name === 'men')   renderShopPage('men');
+  if (name === 'women') renderShopPage('women');
+  if (name === 'home')  { renderHomePage(); if (typeof initReveal === 'function') setTimeout(initReveal, 50); }
+  if (name === 'lookbook' && typeof initLookbook === 'function') initLookbook();
+
+  // hero gender when going to men/women
+  if (name === 'men' || name === 'women') {
+    activeGender = name;
+  }
+
+  // browser history — so Back returns to the previous section
+  if (!fromHistory) {
+    history.pushState({ section: name }, '', '#' + name);
+  }
+}
+
+// Handle browser Back/Forward
+
+// ── Overlay history sync ──────────────────────────────────
+// When an overlay is closed by its own button, pop the history entry it
+// pushed so the browser Back button stays in sync (one Back = one step).
+let _closingFromPop = false;
+function syncCloseHistory(hashName) {
+  // if we're already handling a popstate, don't double-pop
+  if (_closingFromPop) return;
+  if (location.hash === '#' + hashName) {
+    history.back();
+  }
+}
+
+window.addEventListener('popstate', function(e) {
+  _closingFromPop = true;
+  setTimeout(() => { _closingFromPop = false; }, 0);
+  // Close the top-most open layer first, in visual stacking order, one per Back.
+  // Modals (size guide / currency / search) sit highest, then the mobile menu,
+  // then checkout, then cart, then wishlist, then the product page.
+  const layers = [
+    ['sg-modal-bg',        () => (typeof closeSizeGuide==='function') && closeSizeGuide()],
+    ['currency-modal-bg',  () => (typeof closeCurrencyModal==='function') && closeCurrencyModal()],
+    ['search-overlay',     () => (typeof closeSearch==='function') && closeSearch()],
+    ['checkout-page',      () => closeCheckout()],
+    ['cart-drawer',        () => closeCart()],
+    ['wishlist-page',      () => (typeof closeWishlist==='function') && closeWishlist()],
+    ['pdp',                () => closePDP()],
+  ];
+  for (const [id, close] of layers) {
+    const el = document.getElementById(id);
+    if (el && el.classList.contains('open')) { close(); return; }
+  }
+  // Nothing open — restore the section from history
+  const section = (e.state && e.state.section) || 'home';
+  showSection(section, true);
+});
+
+function renderHomePage() {
+  // New arrivals strip — one card per unique design (no repeated names)
+  const seen = new Set();
+  const newProds = SWAY_PRODUCTS.filter(p => {
+    if (!p.isNew) return false;
+    if (seen.has(p.design)) return false;   // skip duplicate designs
+    seen.add(p.design);
+    return true;
+  }).slice(0, 8);
+  const row = document.getElementById('home-new-row');
+  if (row) row.innerHTML = newProds.map(p => productCardHTML(p)).join('');
+}
+
+/* ── Per-page filter + sort ── */
+function setSeriesFilter(series, btn, gender) {
+  if (gender === 'men') menSeries = series;
+  else womenSeries = series;
+  const group = document.getElementById(gender + '-filter-group');
+  if (group) group.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderShopPage(gender);
+}
+
+function setSortFor(gender, val) {
+  if (gender === 'men') menSort = val;
+  else womenSort = val;
+  renderShopPage(gender);
+}
+
+function renderShopPage(gender) {
+  const series = gender === 'men' ? menSeries : womenSeries;
+  const sort   = gender === 'men' ? menSort   : womenSort;
+
+  let list = SWAY_PRODUCTS.filter(p =>
+    p.gender === gender && (series === 'all' || p.series === series)
+  );
+
+  // Show ONE card per design (color variants are chosen on the product page)
+  const seen = new Set();
+  list = list.filter(p => {
+    if (seen.has(p.design)) return false;
+    seen.add(p.design);
+    return true;
+  });
+
+  if (sort === 'price-asc')  list = list.sort((a,b) => a.price - b.price);
+  if (sort === 'price-desc') list = list.sort((a,b) => b.price - a.price);
+  if (sort === 'name')       list = list.sort((a,b) => a.name.localeCompare(b.name));
+
+  const countEl = document.getElementById(gender + '-count');
+  if (countEl) countEl.textContent = list.length + ' item' + (list.length !== 1 ? 's' : '');
+
+  const grid = document.getElementById(gender + '-grid');
+  if (grid) grid.innerHTML = list.map(p => productCardHTML(p)).join('');
+}
+
+/* ── Newsletter ── */
+function submitNewsletter() {
+  const v = document.getElementById('nl-email').value.trim();
+  if (!v.includes('@')) { showToast('Please enter a valid email'); return; }
+  document.querySelector('#page-home .newsletter-form').style.display = 'none';
+  document.getElementById('nl-success').classList.add('show');
+  showToast('Welcome to SWAY.');
+}
+function submitNLAbout() {
+  const v = document.getElementById('nl-email-about').value.trim();
+  if (!v.includes('@')) { showToast('Please enter a valid email'); return; }
+  showToast('Welcome to SWAY.');
+}
+
+/* ── Boot ── */
+detectCurrency();
+updateCartBadge();
+updateWishBadge();
+updateMobileCart();
+renderHomePage();
+
+// Restore section from URL hash if present, else home
+(function bootSection() {
+  const hash = (window.location.hash || '').replace('#', '');
+  const start = SECTIONS.includes(hash) ? hash : 'home';
+  history.replaceState({ section: start }, '', '#' + start);
+  showSection(start, true);
+})();
+
+initHero();
+if (typeof initGenderPanels === 'function') initGenderPanels();
+if (typeof initReveal === 'function') initReveal();
+</script>
+</body>
+</html>

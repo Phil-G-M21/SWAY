@@ -1,0 +1,317 @@
+/* ════════════════════════════════════════════════
+   SWAY — Base: tokens, reset, typography
+════════════════════════════════════════════════ */
+:root {
+  --black:   #0a0a0a;
+  --white:   #ffffff;
+  --off:     #f8f8f8;
+  --border:  #ebebeb;
+  --mid:     #888;
+  --muted:   #bbb;
+  --pink:    #d9567a;
+  --pink-bg: #f5e6ea;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --nav-h:   60px;
+  --ann-h:   36px;
+  --ease:    cubic-bezier(.4,0,.2,1);
+
+  /* Spacing scale — consistent rhythm */
+  --s1: 8px;
+  --s2: 16px;
+  --s3: 24px;
+  --s4: 32px;
+  --s5: 48px;
+  --s6: 64px;
+  --s7: 96px;
+
+  /* Radius + shadow */
+  --r:    3px;
+  --r-lg: 6px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.05);
+  --shadow-md: 0 6px 20px rgba(0,0,0,.08);
+  --shadow-pink: 0 6px 18px rgba(217,86,122,.32);
+}
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-body); background: #fff; color: var(--black); -webkit-font-smoothing: antialiased; overflow-x: hidden; line-height: 1.5; }
+* { box-sizing: border-box; max-width: 100%; }
+button { font-family: var(--font-body); cursor: pointer; border: none; background: none; }
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+ul { list-style: none; }
+input, select { font-family: var(--font-body); }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+/* ── Shared UI ── */
+.btn-primary { background: var(--black); color: #fff; border: none; padding: 13px 26px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; transition: background .2s; border-radius: 0; }
+.btn-primary:hover { background: #222; }
+
+.badge { position: absolute; top: 0; right: 0; background: var(--black); color: #fff; border-radius: 50%; width: 16px; height: 16px; font-size: 9px; display: none; align-items: center; justify-content: center; }
+.badge.show { display: flex; }
+
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--black); color: #fff; padding: 11px 22px; font-size: 12px; letter-spacing: .04em; z-index: 900; transition: transform .28s ease; white-space: nowrap; pointer-events: none; border-radius: 2px; max-width: 90vw; text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Announce */
+.announce { background: var(--black); color: #fff; text-align: center; font-size: 11px; letter-spacing: .1em; padding: 9px 16px; overflow: hidden; }
+.announce-slides { overflow: hidden; height: 18px; }
+.aslide { display: none; animation: fadeSlide .4s ease; }
+.aslide.active { display: block; }
+@keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Card badges */
+.badge-new  { position: absolute; top: 10px; left: 10px; background: var(--black); color: #fff; font-size: 9px; letter-spacing: .16em; font-weight: 600; padding: 5px 10px; z-index: 4; text-transform: uppercase; }
+.badge-design { position: absolute; top: 10px; left: 10px; font-size: 9px; letter-spacing: .12em; padding: 5px 10px; z-index: 4; font-weight: 600; text-transform: uppercase; background: rgba(10,10,10,.55); color: #fff; backdrop-filter: blur(4px); }
+/* When a NEW badge is also present, push the series badge below it */
+.badge-new + .badge-design { top: 38px; }
+
+/* Utility */
+.h-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.h-scroll-wrap::-webkit-scrollbar { display: none; }
+.h-scroll { display: flex; gap: 0; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+/* ════════════════════════════════════════════════
+   BRAND COLOR CYCLE — matches product colors
+   Black -> Pink -> Orange -> Blue
+════════════════════════════════════════════════ */
+
+/* Cycles the BACKGROUND of filled dark buttons */
+@keyframes swayBgCycle {
+  0%   { background-color: #0a0a0a; }
+  22%  { background-color: #0a0a0a; }
+  30%  { background-color: #d9567a; }
+  47%  { background-color: #d9567a; }
+  55%  { background-color: #ff6b2b; }
+  72%  { background-color: #ff6b2b; }
+  80%  { background-color: #3b8fff; }
+  97%  { background-color: #3b8fff; }
+  100% { background-color: #0a0a0a; }
+}
+
+/* Cycles the TEXT color of light/outline elements */
+@keyframes swayTextCycle {
+  0%   { color: #0a0a0a; }
+  22%  { color: #0a0a0a; }
+  30%  { color: #d9567a; }
+  47%  { color: #d9567a; }
+  55%  { color: #ff6b2b; }
+  72%  { color: #ff6b2b; }
+  80%  { color: #3b8fff; }
+  97%  { color: #3b8fff; }
+  100% { color: #0a0a0a; }
+}
+
+/* Cycles white text on colored buttons (keeps text readable) */
+@keyframes swayWhiteText {
+  0%, 100% { color: #fff; }
+}
+
+/* Helper classes */
+.sway-cycle-bg {
+  animation: swayBgCycle 8s infinite;
+}
+.sway-cycle-text {
+  animation: swayTextCycle 8s infinite;
+}
+
+/* ════════════════════════════════════════════════
+   BRAND COLOR CYCLING — matches the SWAY logo
+   Black -> Pink -> Orange -> Blue -> Black
+════════════════════════════════════════════════ */
+
+/* Background cycling for solid black buttons */
+@keyframes brandBg {
+  0%   { background-color: #0a0a0a; }
+  20%  { background-color: #0a0a0a; }
+  25%  { background-color: #d9567a; }
+  45%  { background-color: #d9567a; }
+  50%  { background-color: #ff6b2b; }
+  70%  { background-color: #ff6b2b; }
+  75%  { background-color: #3b8fff; }
+  95%  { background-color: #3b8fff; }
+  100% { background-color: #0a0a0a; }
+}
+
+/* Text color cycling for text links */
+@keyframes brandText {
+  0%   { color: #0a0a0a; }
+  20%  { color: #0a0a0a; }
+  25%  { color: #d9567a; }
+  45%  { color: #d9567a; }
+  50%  { color: #ff6b2b; }
+  70%  { color: #ff6b2b; }
+  75%  { color: #3b8fff; }
+  95%  { color: #3b8fff; }
+  100% { color: #0a0a0a; }
+}
+
+/* White-text version for dark menu (cycles the text on black bg) */
+@keyframes brandTextLight {
+  0%   { color: #ffffff; }
+  20%  { color: #ffffff; }
+  25%  { color: #f099b5; }
+  45%  { color: #f099b5; }
+  50%  { color: #ffa877; }
+  70%  { color: #ffa877; }
+  75%  { color: #8fbfff; }
+  95%  { color: #8fbfff; }
+  100% { color: #ffffff; }
+}
+
+/* Border + text cycling for outline buttons */
+@keyframes brandBorder {
+  0%   { border-color: #0a0a0a; color: #0a0a0a; }
+  20%  { border-color: #0a0a0a; color: #0a0a0a; }
+  25%  { border-color: #d9567a; color: #d9567a; }
+  45%  { border-color: #d9567a; color: #d9567a; }
+  50%  { border-color: #ff6b2b; color: #ff6b2b; }
+  70%  { border-color: #ff6b2b; color: #ff6b2b; }
+  75%  { border-color: #3b8fff; color: #3b8fff; }
+  95%  { border-color: #3b8fff; color: #3b8fff; }
+  100% { border-color: #0a0a0a; color: #0a0a0a; }
+}
+
+/* Apply to solid buttons — they cycle background color */
+.pdp-add-btn,
+.quick-add,
+.checkout-btn,
+.place-order-btn,
+.wl-move-btn,
+.mobile-cart-sticky button,
+.pdp-mobile-sticky button,
+.home-about-btn,
+.series-card-btn,
+.account-btn-primary,
+.filter-pill.active,
+.oc-continue {
+  animation: brandBg 12s infinite;
+  color: #fff;
+}
+
+/* On hover: pause the color cycle and give clear "selected" feedback —
+   the button lifts, scales slightly, gains a shadow, and locks to brand pink */
+.pdp-add-btn,
+.quick-add,
+.checkout-btn,
+.place-order-btn,
+.wl-move-btn,
+.mobile-cart-sticky button,
+.pdp-mobile-sticky button,
+.home-about-btn,
+.series-card-btn,
+.account-btn-primary,
+.oc-continue,
+.lookbook-cta button,
+.pdp-buy-btn,
+.gender-panel-btn {
+  transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, color .18s ease;
+}
+.pdp-add-btn:hover,
+.quick-add:hover,
+.checkout-btn:hover,
+.place-order-btn:hover,
+.wl-move-btn:hover,
+.mobile-cart-sticky button:hover,
+.pdp-mobile-sticky button:hover,
+.home-about-btn:hover,
+.series-card-btn:hover,
+.account-btn-primary:hover,
+.oc-continue:hover,
+.lookbook-cta button:hover {
+  animation-play-state: paused;
+  background-color: #d9567a;      /* brand pink = clearly selected */
+  color: #fff;
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 6px 18px rgba(217,86,122,.35);
+}
+.pdp-add-btn:active,
+.quick-add:active,
+.checkout-btn:active,
+.place-order-btn:active,
+.wl-move-btn:active,
+.mobile-cart-sticky button:active,
+.pdp-mobile-sticky button:active,
+.home-about-btn:active,
+.series-card-btn:active,
+.account-btn-primary:active,
+.oc-continue:active,
+.lookbook-cta button:active {
+  transform: translateY(0) scale(.99);
+  box-shadow: 0 2px 8px rgba(217,86,122,.3);
+}
+/* Buy Now (outline) fills pink on hover */
+.pdp-buy-btn:hover {
+  animation-play-state: paused;
+  background-color: #d9567a;
+  border-color: #d9567a;
+  color: #fff;
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 6px 18px rgba(217,86,122,.35);
+}
+/* White-bg gender button: text goes pink + subtle lift */
+.gender-panel-btn:hover {
+  animation-play-state: paused;
+  color: #d9567a;
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+/* Hamburger links: brighten + slide slightly on hover */
+.mob-nav button {
+  transition: color .18s ease, padding-left .18s ease;
+}
+.mob-nav button:hover {
+  animation-play-state: paused;
+  color: #fff;
+  padding-left: 30px;
+}
+
+/* White-bg button: cycle the TEXT color instead of background */
+.gender-panel-btn {
+  animation: brandText 12s infinite;
+  background: #fff;
+}
+
+/* Buy Now is outline — cycle border + text */
+.pdp-buy-btn {
+  animation: brandBorder 12s infinite;
+}
+
+/* Hamburger menu main links cycle text (on dark bg) */
+.mob-nav button {
+  animation: brandTextLight 12s infinite;
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .pdp-add-btn, .quick-add, .checkout-btn, .place-order-btn, .wl-move-btn,
+  .mobile-cart-sticky button, .pdp-mobile-sticky button, .home-about-btn,
+  .gender-panel-btn, .series-card-btn, .account-btn-primary, .filter-pill.active,
+  .oc-continue, .pdp-buy-btn, .mob-nav button, .logo {
+    animation: none;
+  }
+}
+
+/* ════════════════════════════════════════════════
+   SUBTLE REVEAL — sections fade up as they enter view
+════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+  will-change: opacity, transform;
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
