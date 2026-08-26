@@ -927,6 +927,7 @@ function submitNLAbout() {
 
 /* ── Boot ── */
 detectCurrency();
+if (typeof sanitizeCart === 'function') sanitizeCart();
 updateCartBadge();
 updateWishBadge();
 updateMobileCart();

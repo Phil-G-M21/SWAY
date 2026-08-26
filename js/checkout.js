@@ -21,6 +21,7 @@ const PAYSTACK_ENABLED    = false;         // <-- set true when key is added
 let coCurrentStep = 1, activePayTab = 'momo';
 
 function openCheckout() {
+  if (!cart.length) { showToast('Your cart is empty'); return; }
   // Close the cart VISUALLY only — do not run its history sync here, or it
   // will history.back() and immediately close the checkout we are opening.
   const cd = document.getElementById('cart-drawer');

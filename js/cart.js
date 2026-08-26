@@ -3,6 +3,23 @@
  */
 let cart = JSON.parse(localStorage.getItem('sway-cart') || '[]');
 let wishlist = new Set(JSON.parse(localStorage.getItem('sway-wish') || '[]'));
+
+// Clean the saved cart: drop items whose product no longer exists (e.g. after a
+// product-data update) and re-link each item to the current product object so
+// prices, images and colors are always fresh. Prevents "badge shows 1 but cart
+// is empty" when old saved data references IDs that changed.
+function sanitizeCart() {
+  if (!Array.isArray(cart)) { cart = []; return; }
+  cart = cart.filter(i => i && i.product && typeof i.product.id === 'number')
+             .map(i => {
+               const fresh = (typeof SWAY_PRODUCTS !== 'undefined')
+                 ? SWAY_PRODUCTS.find(p => p.id === i.product.id) : null;
+               if (!fresh) return null;              // product gone -> drop
+               return { key: i.key, product: fresh, size: i.size, qty: i.qty };
+             })
+             .filter(Boolean);
+  saveCart();
+}
 let promoApplied = false, promoRate = 0;
 const PROMO_CODES = { 'SWAY10': 0.10, 'LAUNCH15': 0.15 };
 
@@ -155,3 +172,26 @@ function closeCart() {
   const bar = document.getElementById('mobile-cart-sticky');
   if (bar && count > 0) bar.style.display = 'block';
 }
+
+/* ── Mobile cart bar: auto-hide on scroll down, show on scroll up ── */
+(function initCartBarAutoHide() {
+  let lastY = window.scrollY;
+  let ticking = false;
+  function onScroll() {
+    const bar = document.getElementById('mobile-cart-sticky');
+    if (!bar || bar.style.display === 'none') { lastY = window.scrollY; return; }
+    const y = window.scrollY;
+    const goingDown = y > lastY && y > 120;
+    const nearBottom = (window.innerHeight + y) >= (document.body.scrollHeight - 80);
+    if (goingDown && !nearBottom) {
+      bar.classList.add('bar-hidden');     // hide while reading down the page
+    } else {
+      bar.classList.remove('bar-hidden');  // show when scrolling up or at bottom
+    }
+    lastY = y;
+    ticking = false;
+  }
+  window.addEventListener('scroll', function() {
+    if (!ticking) { window.requestAnimationFrame(onScroll); ticking = true; }
+  }, { passive: true });
+})();

@@ -739,9 +739,16 @@
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   background: #fff;
   border-top: 2px solid #0a0a0a;
-  z-index: 500;
+  z-index: 450;
   pointer-events: all;
   display: none;
+  transition: transform .3s ease, opacity .3s ease;
+}
+/* Auto-hide when scrolling down, slides back up when scrolling up */
+.mobile-cart-sticky.bar-hidden {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
 }
 .mobile-cart-sticky button {
   width: 100%;
