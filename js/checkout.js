@@ -21,7 +21,15 @@ const PAYSTACK_ENABLED    = false;         // <-- set true when key is added
 let coCurrentStep = 1, activePayTab = 'momo';
 
 function openCheckout() {
-  closeCart();
+  // Close the cart VISUALLY only — do not run its history sync here, or it
+  // will history.back() and immediately close the checkout we are opening.
+  const cd = document.getElementById('cart-drawer');
+  const ov = document.getElementById('overlay');
+  if (cd) cd.classList.remove('open');
+  if (ov) ov.classList.remove('open');
+  const bar = document.getElementById('mobile-cart-sticky');
+  if (bar) bar.style.display = 'none';
+
   // Keep the PDP in the DOM (checkout covers it at a higher z-index) so the
   // browser Back button unwinds cleanly: checkout -> product -> section.
   updateCheckoutSummary();
@@ -29,8 +37,15 @@ function openCheckout() {
   document.getElementById('checkout-page').classList.add('open');
   document.body.style.overflow = 'hidden';
   window.scrollTo(0, 0);
-  // push a history entry so Back closes checkout first
-  try { history.pushState({ checkout: true }, '', '#checkout'); } catch (e) {}
+  // Replace the cart history entry with a checkout one (don't stack a new one
+  // on top, so Back from checkout goes to the product/section, not the cart).
+  try {
+    if (location.hash === '#cart') {
+      history.replaceState({ checkout: true }, '', '#checkout');
+    } else {
+      history.pushState({ checkout: true }, '', '#checkout');
+    }
+  } catch (e) {}
 }
 function closeCheckout() {
   if (typeof syncCloseHistory === 'function') syncCloseHistory('checkout');
