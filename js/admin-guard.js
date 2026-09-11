@@ -38,7 +38,12 @@
   function unlock(){
     gate.remove();
     document.body.style.overflow = '';
-    if (typeof onAdminReady === 'function') onAdminReady();
+    // onAdminReady may be defined later in the page; wait for it.
+    let tries = 0;
+    (function callReady(){
+      if (typeof onAdminReady === 'function') { onAdminReady(); return; }
+      if (tries++ < 40) setTimeout(callReady, 50);
+    })();
   }
 
   async function signIn(){

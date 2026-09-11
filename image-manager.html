@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWAY — Product Manager</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=3"></script>
-<script src="js/admin-guard.js?v=3"></script>
+<script src="js/supabase-config.js?v=4"></script>
+<script src="js/admin-guard.js?v=4"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f4; color:#0a0a0a; padding:24px; }
@@ -133,9 +133,17 @@ const fileStore = {};
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
 
 async function loadVariants(){
-  const { data, error } = await sway_db.from('products').select('*').order('id');
-  if(error){ document.getElementById('variant-grid').textContent='Error: '+error.message; return; }
-  VARIANTS = data; renderGrid();
+  const grid = document.getElementById('variant-grid');
+  grid.textContent = 'Loading products...';
+  try {
+    const { data, error } = await sway_db.from('products').select('*').order('id');
+    if(error){ grid.textContent = 'Error loading: ' + error.message; return; }
+    if(!data){ grid.textContent = 'No data returned.'; return; }
+    VARIANTS = data;
+    renderGrid();
+  } catch(e){
+    grid.textContent = 'Failed: ' + (e.message || e);
+  }
 }
 
 function renderGrid(){
