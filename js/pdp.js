@@ -79,17 +79,12 @@ function openPDP(id) {
 function renderPDPGallery(p) {
   const wrap  = document.getElementById('pdp-main-wrap');
   const bg    = p.color === 'Black' ? '#0f0f0f' : (p.color === 'Pink' || p.color === 'Orange') ? '#f5e0e6' : '#f2f2f2';
-  // Build exactly 3 image slots (front/back/model), always.
-  let allImgs = (p.imgs && p.imgs.length) ? p.imgs.slice() : [];
-  if (allImgs.length === 0) {
-    // Derive the expected filenames from the product fields so empty
-    // products still show 3 slots (placeholder until photos are uploaded).
-    let base = p.design + '-' + p.gender + '-' + ((p.shirt || 'white') + '').toLowerCase();
-    if (p.spark) base += '-' + (p.spark + '').toLowerCase();
-    const raw = [base + '.jpg', base + '-2.jpg', base + '-3.jpg'];
-    allImgs = raw.map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : ('images/products/' + u));
-  }
-  while (allImgs.length < 3) allImgs.push(allImgs[allImgs.length - 1] || '');
+  // Use ONLY images the database actually has. If empty, the 3 slots stay
+  // empty (placeholder) and we do NOT load any derived URL — so a removed
+  // image really disappears instead of loading a cached copy.
+  let allImgs = (p.imgs && p.imgs.length) ? p.imgs.slice().filter(Boolean) : (p.img ? [p.img] : []);
+  // pad to 3 empty slots for a consistent layout (empty string = placeholder box)
+  while (allImgs.length < 3) allImgs.push('');
 
   wrap.style.background = bg;
 

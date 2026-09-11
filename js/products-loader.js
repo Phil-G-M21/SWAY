@@ -32,7 +32,7 @@ async function loadProductsFromDB() {
       stock: row.stock ?? 10,
       isNew: row.is_new,
       isBest: row.is_best,
-img: (typeof resolveProductImg === 'function') ? resolveProductImg(row.img || expectedSlug(row) + '.jpg') : (row.img || ''),
+img: row.img ? ((typeof resolveProductImg === 'function') ? resolveProductImg(row.img) : row.img) : '',
       // Always produce 3 image slots (front/back/model). Use stored imgs, else
       // the stored main img, else the expected filename from the variant fields.
       imgs: resolveImgList(row),
@@ -58,13 +58,10 @@ function expectedSlug(row) {
 // expected filename so a product with no stored image still shows 3 slots
 // (which display the uploaded photo if it exists, or the placeholder if not).
 function resolveImgList(row) {
-  let list;
-  if (row.imgs && row.imgs.length) {
-    list = row.imgs.slice(0, 3);
-  } else {
-    const base = row.img ? row.img.replace(/\.jpg$/i, '') : expectedSlug(row);
-    list = [base + '.jpg', base + '-2.jpg', base + '-3.jpg'];
-  }
-  while (list.length < 3) list.push(list[list.length - 1]);  // pad to 3
+  // Only use images the DB actually stores. No deriving — a removed image
+  // must stay removed, not reappear from a guessed filename.
+  let list = [];
+  if (row.imgs && row.imgs.length) list = row.imgs.slice(0, 3).filter(Boolean);
+  else if (row.img) list = [row.img];
   return list.map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : u);
 }
