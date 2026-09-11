@@ -106,10 +106,11 @@ function renderPDPGallery(p) {
   };
 
   const thumbLabels = ['Front', 'Back', 'Model'];
-  document.getElementById('pdp-thumbs').innerHTML = allImgs.map((src, i) =>
+  // GUARANTEE exactly 3 slots no matter what the data looks like.
+  const slots = [allImgs[0] || '', allImgs[1] || '', allImgs[2] || ''];
+  document.getElementById('pdp-thumbs').innerHTML = slots.map((src, i) =>
     `<div class="pdp-thumb ${i === 0 ? 'active' : ''}" onclick="setPDPMain('${src}',this)" style="background:${bg}">
-      <img src="${src}" alt="${thumbLabels[i]}" loading="lazy"
-        onerror="this.style.opacity='0'">
+      ${src ? `<img src="${src}" alt="${thumbLabels[i]}" loading="lazy" onerror="this.style.opacity='0'">` : ''}
       <div class="thumb-label">${thumbLabels[i]}</div>
     </div>`
   ).join('');

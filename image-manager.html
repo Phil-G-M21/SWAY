@@ -19,24 +19,34 @@
   .btn-add { background:#1a7f4b; color:#fff; }
   .btn-ghost { background:#fff; border:1px solid #ddd; color:#333; }
   .grid { display:grid; gap:12px; }
-  .row { background:#fff; border:1px solid #e5e5e4; border-radius:8px; padding:16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .row { background:#fff; border:1px solid #e5e5e4; border-radius:8px; padding:18px; margin-bottom:10px; }
   .row.done { border-color:#1a7f4b; }
+  .row-top { display:flex; gap:16px; align-items:center; flex-wrap:wrap; justify-content:space-between; }
   .row-info { flex:1; min-width:160px; }
   .row-name { font-weight:600; font-size:15px; }
   .row-meta { font-size:12px; color:#777; margin-top:2px; text-transform:capitalize; }
   .status { font-size:11px; color:#1a7f4b; margin-top:4px; font-weight:600; }
   .drops { display:flex; gap:8px; }
-  .drop { width:70px; height:90px; border:2px dashed #ccc; border-radius:6px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; background:#fafafa; }
+  .drop { width:64px; height:82px; border:2px dashed #ccc; border-radius:6px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; background:#fafafa; }
   .drop:hover { border-color:#0a0a0a; }
   .drop.filled { border-style:solid; border-color:#1a7f4b; }
   .drop img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
   .drop .lbl { font-size:8px; color:#999; letter-spacing:.05em; text-transform:uppercase; z-index:1; pointer-events:none; }
   .drop .plus { font-size:18px; color:#bbb; z-index:1; pointer-events:none; }
-  .row-actions { display:flex; flex-direction:column; gap:6px; }
-  .row-save { background:#1a7f4b; color:#fff; border:none; padding:10px 16px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+  /* edit row: price / stock / desc */
+  .row-edit { display:flex; gap:12px; align-items:flex-end; margin-top:16px; padding-top:16px; border-top:1px solid #f0f0ef; flex-wrap:wrap; }
+  .ef { display:flex; flex-direction:column; gap:5px; }
+  .ef label { font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#888; }
+  .ef input { padding:9px 11px; border:1.5px solid #ddd; border-radius:6px; font-size:13px; width:100px; }
+  .ef-desc { flex:1; min-width:180px; }
+  .ef-desc input { width:100%; }
+  .row-details-save { background:#0a0a0a; color:#fff; border:none; padding:10px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  /* actions: spaced out, clearly separated */
+  .row-actions { display:flex; gap:20px; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid #f0f0ef; }
+  .row-save { background:#1a7f4b; color:#fff; border:none; padding:11px 20px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
   .row-save:disabled { opacity:.5; }
-  .row-img-del { background:none; border:none; color:#b26a00; font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; }
-  .row-del { background:none; border:none; color:#c0392b; font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; }
+  .row-img-del { background:none; border:1px solid #e0c088; color:#b26a00; font-size:11px; font-weight:600; padding:10px 16px; border-radius:6px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; }
+  .row-del { background:none; border:1px solid #e0b4b0; color:#c0392b; font-size:11px; font-weight:600; padding:10px 16px; border-radius:6px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; margin-left:auto; }
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#0a0a0a; color:#fff; padding:14px 24px; border-radius:6px; font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:100; }
   .toast.show { opacity:1; }
   /* Modal */
@@ -141,18 +151,28 @@ function renderGrid(){
       const hasImg = v.img && v.img.startsWith('http');
       return `
       <div class="row ${hasImg?'done':''}" id="row-${v.id}">
-        <div class="row-info">
-          <div class="row-name">${v.name} — ${v.color}</div>
-          <div class="row-meta">${v.gender} · ${v.series} · GHS ${v.price}</div>
-          ${hasImg?'<div class="status">Has photos</div>':''}
+        <div class="row-top">
+          <div class="row-info">
+            <div class="row-name">${v.name} — ${v.color}</div>
+            <div class="row-meta">${v.gender} · ${v.series}</div>
+            ${hasImg?'<div class="status">Has photos</div>':''}
+          </div>
+          <div class="drops">
+            ${[0,1,2].map(i=>`
+              <div class="drop" id="drop-${v.id}-${i}" onclick="document.getElementById('file-${v.id}-${i}').click()">
+                <div class="plus">+</div><div class="lbl">${['Front','Back','Model'][i]}</div>
+                <input type="file" id="file-${v.id}-${i}" accept="image/*" hidden onchange="onPick(${v.id},${i},this)">
+              </div>`).join('')}
+          </div>
         </div>
-        <div class="drops">
-          ${[0,1,2].map(i=>`
-            <div class="drop" id="drop-${v.id}-${i}" onclick="document.getElementById('file-${v.id}-${i}').click()">
-              <div class="plus">+</div><div class="lbl">${['Front','Back','Model'][i]}</div>
-              <input type="file" id="file-${v.id}-${i}" accept="image/*" hidden onchange="onPick(${v.id},${i},this)">
-            </div>`).join('')}
+
+        <div class="row-edit">
+          <div class="ef"><label>Price (GHS)</label><input type="number" id="price-${v.id}" value="${v.price}"></div>
+          <div class="ef"><label>Stock</label><input type="number" id="stock-${v.id}" value="${v.stock ?? 10}"></div>
+          <div class="ef ef-desc"><label>Description</label><input type="text" id="desc-${v.id}" value="${(v.description||'').replace(/"/g,'&quot;')}" placeholder="Product description"></div>
+          <button class="row-details-save" onclick="saveDetails(${v.id})">Save Details</button>
         </div>
+
         <div class="row-actions">
           <button class="row-save" id="save-${v.id}" onclick="saveRow(${v.id})">Save Photos</button>
           <button class="row-img-del" onclick="removeImage(${v.id})">Remove Image</button>
@@ -203,6 +223,16 @@ function onPick(id,idx,input){
   const r=new FileReader();
   r.onload=e=>{ const d=document.getElementById(`drop-${id}-${idx}`); d.classList.add('filled'); let img=d.querySelector('img'); if(!img){img=document.createElement('img');d.insertBefore(img,d.firstChild);} img.src=e.target.result; };
   r.readAsDataURL(file);
+}
+
+async function saveDetails(id){
+  const price = parseInt(document.getElementById('price-'+id).value) || 0;
+  const stock = parseInt(document.getElementById('stock-'+id).value) || 0;
+  const description = document.getElementById('desc-'+id).value.trim();
+  const {error} = await sway_db.from('products').update({ price, stock, description }).eq('id', id);
+  if(error){ toast('Failed: '+error.message); return; }
+  toast('Details saved');
+  loadVariants();
 }
 
 async function saveRow(id){
