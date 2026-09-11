@@ -629,3 +629,9 @@ a.contact-method:hover { border-color: #0a0a0a; }
 .af-grid input { padding:11px 12px; border:1.5px solid var(--border); border-radius:6px; font-size:14px; }
 .prof-form .form-field { margin-bottom:14px; }
 @media (max-width:600px){ .af-grid { grid-template-columns:1fr; } }
+
+/* Password show/hide toggle */
+.pass-wrap { position: relative; }
+.pass-wrap input { width: 100%; padding-right: 60px; }
+.pass-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; letter-spacing: .02em; }
+.pass-toggle:hover { color: #0a0a0a; }

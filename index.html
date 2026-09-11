@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=7">
-<link rel="stylesheet" href="css/layout.css?v=7">
-<link rel="stylesheet" href="css/components.css?v=7">
+<link rel="stylesheet" href="css/base.css?v=9">
+<link rel="stylesheet" href="css/layout.css?v=9">
+<link rel="stylesheet" href="css/components.css?v=9">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=7"></script>
+<script src="js/supabase-config.js?v=9"></script>
 </head>
 <body>
 
@@ -90,8 +90,8 @@
     <button onclick="openCurrencyModal();toggleMenu()"><span id="mob-curr-code">GHS</span> &middot; Change Currency</button>
   </div>
   <div class="mob-menu-foot">
-    <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
-    <a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
+    <a href="https://www.instagram.com/swayo.fficial" target="_blank" rel="noopener">Instagram</a>
+    
   </div>
 </div>
 
@@ -461,7 +461,7 @@
           <p class="account-auth-sub">Access your wishlist and saved details.</p>
           <div class="account-form">
             <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
-            <div class="form-field"><label>Password</label><input type="password" id="signin-pass" placeholder="Your password"></div>
+            <div class="form-field"><label>Password</label><div class="pass-wrap"><input type="password" id="signin-pass" placeholder="Your password"><button type="button" class="pass-toggle" onclick="togglePass('signin-pass',this)">Show</button></div></div>
             <button class="account-btn-primary" onclick="doSignIn()">Sign In</button>
           </div>
         </div>
@@ -471,7 +471,7 @@
           <div class="account-form">
             <div class="form-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Kofi Mensah"></div>
             <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
-            <div class="form-field"><label>Password</label><input type="password" id="signup-pass" placeholder="Choose a password"></div>
+            <div class="form-field"><label>Password</label><div class="pass-wrap"><input type="password" id="signup-pass" placeholder="Choose a password"><button type="button" class="pass-toggle" onclick="togglePass('signup-pass',this)">Show</button></div></div>
             <button class="account-btn-primary" onclick="doSignUp()">Create Account</button>
           </div>
         </div>
@@ -524,7 +524,7 @@
             <button class="account-btn-primary" onclick="saveProfile()">Save Profile</button>
           </div>
           <div class="prof-form" style="margin-top:24px;border-top:1px solid var(--border);padding-top:24px">
-            <div class="form-field"><label>New Password</label><input id="prof-pass" type="password" placeholder="At least 6 characters"></div>
+            <div class="form-field"><label>New Password</label><div class="pass-wrap"><input id="prof-pass" type="password" placeholder="At least 6 characters"><button type="button" class="pass-toggle" onclick="togglePass('prof-pass',this)">Show</button></div></div>
             <button class="account-btn-primary" onclick="changePassword()">Change Password</button>
           </div>
         </div>
@@ -632,11 +632,15 @@
       <div class="contact-methods">
         <a class="contact-method" id="contact-whatsapp" href="#" target="_blank" rel="noopener">
           <span class="contact-method-label">WhatsApp</span>
-          <span class="contact-method-val">Chat with us</span>
+          <span class="contact-method-val">020 472 5809</span>
         </a>
         <a class="contact-method" id="contact-email" href="#">
           <span class="contact-method-label">Email</span>
-          <span class="contact-method-val">hello@sway.store</span>
+          <span class="contact-method-val">swayofficial00@gmail.com</span>
+        </a>
+        <a class="contact-method" href="https://www.instagram.com/swayo.fficial" target="_blank" rel="noopener">
+          <span class="contact-method-label">Instagram</span>
+          <span class="contact-method-val">@swayo.fficial</span>
         </a>
         <div class="contact-method">
           <span class="contact-method-label">Based in</span>
@@ -662,7 +666,7 @@
     <span class="footer-logo"><img src="images/logo-white.png?v=2" alt="SWAY" class="footer-logo-img"></span>
     <p class="footer-tagline">Premium streetwear. Made in Ghana.</p>
     <div class="footer-social" style="margin-top:16px">
-      <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
+      <a href="https://www.instagram.com/swayo.fficial" target="_blank" rel="noopener">Instagram</a>
     </div>
   </div>
   <div class="footer-col">
@@ -681,7 +685,7 @@
   <div class="footer-col">
     <h4>Contact</h4>
     <button onclick="showSection('contact')">Get in touch</button>
-    <a href="mailto:hello@sway.store">hello@sway.store</a>
+    <a href="mailto:swayofficial00@gmail.com">swayofficial00@gmail.com</a>
     <button onclick="showSection('contact')">Accra, Ghana</button>
   </div>
 </footer>
@@ -927,16 +931,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=7"></script>
-<script src="js/images.js?v=7"></script>
-<script src="js/products-loader.js?v=7"></script>
-<script src="js/currency.js?v=7"></script>
-<script src="js/cart.js?v=7"></script>
-<script src="js/ui.js?v=7"></script>
-<script src="js/pdp.js?v=7"></script>
-<script src="js/pages.js?v=7"></script>
-<script src="js/checkout.js?v=7"></script>
-<script src="js/accounts.js?v=7"></script>
+<script src="js/products.js?v=9"></script>
+<script src="js/images.js?v=9"></script>
+<script src="js/products-loader.js?v=9"></script>
+<script src="js/currency.js?v=9"></script>
+<script src="js/cart.js?v=9"></script>
+<script src="js/ui.js?v=9"></script>
+<script src="js/pdp.js?v=9"></script>
+<script src="js/pages.js?v=9"></script>
+<script src="js/checkout.js?v=9"></script>
+<script src="js/accounts.js?v=9"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }

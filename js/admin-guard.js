@@ -15,7 +15,10 @@ function initAdminGate(){
       <h2 style="font-size:22px;margin-bottom:6px;letter-spacing:.02em">Admin Access</h2>
       <p style="font-size:13px;color:#999;margin-bottom:22px">Enter the SWAY admin login to manage the store.</p>
       <input id="gate-email" type="email" placeholder="Email" style="width:100%;padding:12px;margin-bottom:10px;border:1px solid #333;background:#111;color:#fff;border-radius:6px;font-size:14px">
-      <input id="gate-pass" type="password" placeholder="Password" style="width:100%;padding:12px;margin-bottom:16px;border:1px solid #333;background:#111;color:#fff;border-radius:6px;font-size:14px">
+      <div style="position:relative;margin-bottom:16px">
+        <input id="gate-pass" type="password" placeholder="Password" style="width:100%;padding:12px;padding-right:60px;border:1px solid #333;background:#111;color:#fff;border-radius:6px;font-size:14px">
+        <button type="button" id="gate-toggle" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:12px;font-weight:600;cursor:pointer;padding:4px 8px">Show</button>
+      </div>
       <button id="gate-btn" style="width:100%;padding:13px;background:#fff;color:#0a0a0a;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer">Sign In</button>
       <p id="gate-msg" style="font-size:12px;color:#e0736b;margin-top:12px;min-height:16px"></p>
       <a href="index.html" style="color:#777;font-size:12px;text-decoration:none;display:inline-block;margin-top:8px">← Back to store</a>
@@ -60,6 +63,10 @@ function initAdminGate(){
   setTimeout(()=>{
     document.getElementById('gate-btn').addEventListener('click', signIn);
     document.getElementById('gate-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') signIn(); });
+    document.getElementById('gate-toggle').addEventListener('click', function(){
+      const p=document.getElementById('gate-pass');
+      if(p.type==='password'){ p.type='text'; this.textContent='Hide'; } else { p.type='password'; this.textContent='Show'; }
+    });
     checkAccess();  // auto-unlock if already logged in as admin
   }, 50);
 }

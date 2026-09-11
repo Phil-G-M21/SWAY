@@ -395,8 +395,8 @@ function toggleFaq(btn) {
 }
 
 // WhatsApp number — edit this to the real store number (international format, no +)
-const SWAY_WHATSAPP = '233000000000';
-const SWAY_EMAIL = 'hello@sway.store';
+const SWAY_WHATSAPP = '233204725809';
+const SWAY_EMAIL = 'swayofficial00@gmail.com';
 
 function submitContact() {
   const name = (document.getElementById('contact-name')||{}).value || '';
@@ -416,4 +416,12 @@ function initContactLinks() {
   if (wa) wa.href = 'https://wa.me/' + SWAY_WHATSAPP;
   const em = document.getElementById('contact-email');
   if (em) em.href = 'mailto:' + SWAY_EMAIL;
+}
+
+/* Show/hide password toggle */
+function togglePass(id, btn){
+  const input = document.getElementById(id);
+  if(!input) return;
+  if(input.type === 'password'){ input.type = 'text'; if(btn) btn.textContent = 'Hide'; }
+  else { input.type = 'password'; if(btn) btn.textContent = 'Show'; }
 }
