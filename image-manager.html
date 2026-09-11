@@ -34,13 +34,15 @@
   .drop .lbl { font-size:8px; color:#999; letter-spacing:.05em; text-transform:uppercase; z-index:1; pointer-events:none; }
   .drop .plus { font-size:18px; color:#bbb; z-index:1; pointer-events:none; }
   /* edit row: price / stock / desc */
-  .row-edit { display:flex; gap:12px; align-items:flex-end; margin-top:16px; padding-top:16px; border-top:1px solid #f0f0ef; flex-wrap:wrap; }
+  .row-edit { display:flex; gap:12px; align-items:flex-start; margin-top:16px; padding-top:16px; border-top:1px solid #f0f0ef; flex-wrap:wrap; }
   .ef { display:flex; flex-direction:column; gap:5px; }
   .ef label { font-size:10px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:#888; }
   .ef input { padding:9px 11px; border:1.5px solid #ddd; border-radius:6px; font-size:13px; width:100px; }
   .ef-desc { flex:1; min-width:180px; }
   .ef-desc input { width:100%; }
-  .row-details-save { background:#0a0a0a; color:#fff; border:none; padding:10px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .ef-desc textarea { width:100%; padding:9px 11px; border:1.5px solid #ddd; border-radius:6px; font-size:13px; font-family:inherit; resize:vertical; min-height:70px; line-height:1.5; }
+  .ef-desc textarea:focus { border-color:#0a0a0a; outline:none; }
+  .row-details-save { background:#0a0a0a; color:#fff; border:none; padding:10px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; align-self:flex-end; }
   /* actions: spaced out, clearly separated */
   .row-actions { display:flex; gap:20px; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid #f0f0ef; }
   .row-save { background:#1a7f4b; color:#fff; border:none; padding:11px 20px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
@@ -169,7 +171,7 @@ function renderGrid(){
         <div class="row-edit">
           <div class="ef"><label>Price (GHS)</label><input type="number" id="price-${v.id}" value="${v.price}"></div>
           <div class="ef"><label>Stock</label><input type="number" id="stock-${v.id}" value="${v.stock ?? 10}"></div>
-          <div class="ef ef-desc"><label>Description</label><input type="text" id="desc-${v.id}" value="${(v.description||'').replace(/"/g,'&quot;')}" placeholder="Product description"></div>
+          <div class="ef ef-desc"><label>Description</label><textarea id="desc-${v.id}" rows="3" placeholder="Product description">${(v.description||'').replace(/</g,'&lt;')}</textarea></div>
           <button class="row-details-save" onclick="saveDetails(${v.id})">Save Details</button>
         </div>
 
