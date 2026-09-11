@@ -32,9 +32,10 @@ async function loadProductsFromDB() {
       stock: row.stock ?? 10,
       isNew: row.is_new,
       isBest: row.is_best,
-      img: row.img,
+      img: (typeof resolveProductImg === 'function') ? resolveProductImg(row.img) : row.img,
       // build imgs from img base if the DB doesn't store the array
-      imgs: (row.imgs && row.imgs.length) ? row.imgs : buildImgsFromMain(row.img),
+      imgs: ((row.imgs && row.imgs.length) ? row.imgs : buildImgsFromMain(row.img))
+              .map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : u),
       desc: row.description,
       details: ['Cropped fit','Full-back graphic','SWAY wordmark chest hit','Ribbed crewneck collar']
     }));

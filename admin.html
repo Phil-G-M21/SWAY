@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWAY — Admin · Add Products</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black:#0a0a0a; --white:#fff; --off:#f5f5f4; --border:#e5e5e3;
+    --mid:#777; --pink:#d9567a; --orange:#ff6b2b; --blue:#3b8fff;
+    --font-display:'Bebas Neue',sans-serif; --font-body:'DM Sans',sans-serif;
+    --r:3px;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; max-width:100%; }
+  body { font-family:var(--font-body); background:#fafaf9; color:var(--black); line-height:1.5; }
+
+  .admin-nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; background:var(--black); position:sticky; top:0; z-index:50;
+  }
+  .admin-logo { font-family:var(--font-display); font-size:24px; letter-spacing:.2em; color:#fff; }
+  .admin-logo span { color:var(--pink); }
+  .admin-nav-right a {
+    color:rgba(255,255,255,.7); font-size:12px; text-decoration:none; letter-spacing:.05em;
+    padding:8px 14px; border:1px solid rgba(255,255,255,.15); border-radius:var(--r); transition:all .15s;
+  }
+  .admin-nav-right a:hover { color:#fff; border-color:rgba(255,255,255,.4); }
+
+  .admin-wrap { max-width:1200px; margin:0 auto; padding:28px 24px 80px; }
+  .admin-head { margin-bottom:24px; }
+  .admin-head h1 { font-family:var(--font-display); font-size:38px; letter-spacing:.03em; line-height:1; }
+  .admin-head p { color:var(--mid); font-size:14px; margin-top:6px; }
+
+  .admin-banner {
+    background:#fff8e6; border:1px solid #f0d998; border-radius:var(--r);
+    padding:14px 18px; font-size:13px; color:#8a6d1f; margin-bottom:24px; line-height:1.6;
+  }
+  .admin-banner strong { color:#6b5010; }
+
+  .admin-grid { display:grid; grid-template-columns:1fr 380px; gap:28px; align-items:start; }
+
+  .form-card { background:#fff; border:1px solid var(--border); border-radius:var(--r); padding:26px; }
+  .form-card h2 {
+    font-family:var(--font-display); font-size:20px; letter-spacing:.06em;
+    margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border);
+  }
+  .field { margin-bottom:18px; }
+  .field label {
+    display:block; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    font-weight:600; color:#555; margin-bottom:6px;
+  }
+  .field .hint { font-size:11px; color:var(--mid); font-weight:400; text-transform:none; letter-spacing:0; margin-top:3px; }
+  .field input[type=text], .field input[type=number], .field select, .field textarea {
+    width:100%; border:1.5px solid var(--border); border-radius:var(--r);
+    padding:11px 13px; font-size:14px; font-family:var(--font-body); outline:none;
+    transition:border-color .15s; background:#fff;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--black); }
+  .field textarea { resize:vertical; min-height:70px; }
+  .row-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+
+  .size-chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .size-chip {
+    border:1.5px solid var(--border); border-radius:var(--r); padding:8px 16px;
+    font-size:13px; font-weight:600; cursor:pointer; user-select:none; transition:all .15s; background:#fff;
+  }
+  .size-chip.on { background:var(--black); color:#fff; border-color:var(--black); }
+
+  .tag-chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .tag-chip {
+    border:1.5px solid var(--border); border-radius:20px; padding:7px 16px;
+    font-size:12px; font-weight:500; cursor:pointer; user-select:none; transition:all .15s; background:#fff;
+  }
+  .tag-chip.on { background:var(--pink); color:#fff; border-color:var(--pink); }
+
+  .color-preview {
+    display:inline-block; width:20px; height:20px; border-radius:3px;
+    border:1.5px solid var(--border); vertical-align:middle; margin-left:8px;
+  }
+
+  .img-zones { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .drop {
+    border:2px dashed var(--border); border-radius:var(--r); aspect-ratio:3/4;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .15s; text-align:center; padding:8px; position:relative; overflow:hidden;
+    background:var(--off);
+  }
+  .drop:hover { border-color:var(--black); background:#efefee; }
+  .drop.filled { border-style:solid; border-color:var(--black); }
+  .drop img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .drop .drop-label { font-size:11px; color:var(--mid); font-weight:600; letter-spacing:.05em; z-index:1; pointer-events:none; }
+  .drop .drop-plus { font-size:26px; color:var(--mid); margin-bottom:4px; z-index:1; pointer-events:none; }
+  .drop .remove-img {
+    position:absolute; top:6px; right:6px; background:rgba(0,0,0,.7); color:#fff;
+    border:none; width:24px; height:24px; border-radius:50%; cursor:pointer; z-index:2;
+    font-size:14px; line-height:1; display:none;
+  }
+  .drop.filled .remove-img { display:block; }
+
+  .save-btn {
+    width:100%; background:var(--black); color:#fff; border:none; border-radius:var(--r);
+    padding:16px; font-size:13px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    cursor:pointer; margin-top:8px; transition:all .18s;
+  }
+  .save-btn:hover { background:var(--pink); transform:translateY(-2px); box-shadow:0 6px 18px rgba(217,86,122,.35); }
+  .save-btn:active { transform:translateY(0); }
+
+  .preview-col { position:sticky; top:90px; }
+  .preview-card-wrap { background:#fff; border:1px solid var(--border); border-radius:var(--r); padding:20px; margin-bottom:20px; }
+  .preview-card-wrap h3 { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); margin-bottom:14px; }
+
+  .pcard { border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+  .pcard-img { aspect-ratio:3/4; background:var(--off); position:relative; overflow:hidden; }
+  .pcard-img .ph {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:22px; letter-spacing:.2em; color:#ccc;
+  }
+  .pcard-badge {
+    position:absolute; top:10px; left:10px; background:var(--black); color:#fff;
+    font-size:9px; letter-spacing:.1em; padding:4px 8px; text-transform:uppercase; font-weight:600; z-index:2;
+  }
+  .pcard-body { padding:14px; }
+  .pcard-series { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); margin-bottom:4px; }
+  .pcard-name { font-family:var(--font-display); font-size:20px; letter-spacing:.03em; line-height:1; margin-bottom:6px; }
+  .pcard-price { font-size:14px; font-weight:600; }
+  .pcard-stock { font-size:11px; color:var(--mid); margin-top:4px; }
+
+  .saved-wrap { background:#fff; border:1px solid var(--border); border-radius:var(--r); padding:20px; }
+  .saved-wrap h3 { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--mid); margin-bottom:14px; }
+  .saved-item { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--off); }
+  .saved-item:last-child { border-bottom:none; }
+  .saved-thumb { width:44px; height:56px; border-radius:2px; object-fit:cover; background:var(--off); flex-shrink:0; }
+  .saved-info { flex:1; min-width:0; }
+  .saved-info .sn { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .saved-info .sm { font-size:11px; color:var(--mid); }
+  .saved-del { background:none; border:none; color:var(--pink); cursor:pointer; font-size:12px; padding:4px; }
+  .saved-empty { font-size:13px; color:var(--mid); text-align:center; padding:20px 0; }
+
+  .export-btn {
+    width:100%; background:none; border:1.5px solid var(--black); border-radius:var(--r);
+    padding:12px; font-size:12px; font-weight:600; letter-spacing:.06em; cursor:pointer;
+    margin-top:14px; transition:all .15s;
+  }
+  .export-btn:hover { background:var(--black); color:#fff; }
+
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--black); color:#fff; padding:14px 24px; border-radius:var(--r);
+    font-size:13px; opacity:0; pointer-events:none; transition:all .3s; z-index:100;
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media (max-width:920px) {
+    .admin-grid { grid-template-columns:1fr; }
+    .preview-col { position:static; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/images.js"></script>
+</head>
+<body>
+
+<div class="admin-nav">
+  <div class="admin-logo">S<span>W</span>AY · ADMIN</div>
+  <div class="admin-nav-right">
+    <a href="index.html">← Back to Store</a>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <div class="admin-head">
+    <h1>Add a Product</h1>
+    <p>Fill the details, drop in your photos, and save. Preview updates live on the right.</p>
+  </div>
+
+  <div class="admin-banner">
+    <strong>Heads up:</strong> Right now products save to this browser only (so you can build and preview your catalog).
+    Once we connect Supabase, saving here will upload to the cloud and appear on the live store automatically.
+    You can also hit <strong>Export products.js</strong> below to drop your products into the live site today.
+  </div>
+
+  <div class="admin-grid">
+    <div class="form-card">
+      <h2>Product Details</h2>
+
+      <div class="field">
+        <label>Product Name</label>
+        <input type="text" id="f-name" placeholder="e.g. Neon Ember" oninput="updatePreview()">
+      </div>
+
+      <div class="field">
+        <label>Subtitle</label>
+        <input type="text" id="f-subtitle" placeholder="e.g. Match Graphic Tee" oninput="updatePreview()">
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Series</label>
+          <select id="f-series" onchange="updatePreview()">
+            <option value="spark">Spark</option>
+            <option value="timechaos">Time &amp; Chaos</option>
+            <option value="marionette">Marionette</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Gender</label>
+          <select id="f-gender" onchange="updatePreview()">
+            <option value="women">Women</option>
+            <option value="men">Men</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row-3">
+        <div class="field">
+          <label>Price (GHS)</label>
+          <input type="number" id="f-price" value="100" min="0" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Stock Count</label>
+          <input type="number" id="f-stock" value="10" min="0" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>Color Name</label>
+          <input type="text" id="f-color" placeholder="e.g. Pink" value="White" oninput="updatePreview()">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Color Swatch <span id="color-preview" class="color-preview"></span></label>
+        <input type="color" id="f-colorhex" value="#f2f2f2" oninput="updatePreview()" style="width:60px;height:38px;border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;padding:2px;">
+        <span class="hint">The little dot color shown on the product card.</span>
+      </div>
+
+      <div class="field">
+        <label>Sizes Available</label>
+        <div class="size-chips" id="size-chips">
+          <div class="size-chip on" data-size="S">S</div>
+          <div class="size-chip on" data-size="M">M</div>
+          <div class="size-chip on" data-size="L">L</div>
+          <div class="size-chip on" data-size="XL">XL</div>
+          <div class="size-chip on" data-size="XXL">XXL</div>
+        </div>
+        <span class="hint">Tap to toggle which sizes are in stock.</span>
+      </div>
+
+      <div class="field">
+        <label>Tags</label>
+        <div class="tag-chips" id="tag-chips">
+          <div class="tag-chip" data-tag="isNew">New</div>
+          <div class="tag-chip" data-tag="isBest">Best Seller</div>
+          <div class="tag-chip" data-tag="isLimited">Limited</div>
+          <div class="tag-chip" data-tag="isRestock">Restock</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea id="f-desc" placeholder="Short paragraph describing the tee, the graphic, the fabric..." oninput="updatePreview()"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Detail Points</label>
+        <textarea id="f-details" placeholder="One per line, e.g.&#10;Quality cotton&#10;Cropped fit&#10;Full-back graphic"></textarea>
+        <span class="hint">One bullet point per line. Shows in the product page details.</span>
+      </div>
+
+      <div class="field">
+        <label>Product Photos</label>
+        <span class="hint" style="margin-bottom:10px;display:block">Front, Back, and Model shot. Portrait (tall) works best, around 1200x1600.</span>
+        <div class="img-zones">
+          <div class="drop" id="drop-0" onclick="document.getElementById('file-0').click()">
+            <div class="drop-plus">+</div>
+            <div class="drop-label">FRONT</div>
+            <button class="remove-img" onclick="removeImg(event,0)">×</button>
+          </div>
+          <div class="drop" id="drop-1" onclick="document.getElementById('file-1').click()">
+            <div class="drop-plus">+</div>
+            <div class="drop-label">BACK</div>
+            <button class="remove-img" onclick="removeImg(event,1)">×</button>
+          </div>
+          <div class="drop" id="drop-2" onclick="document.getElementById('file-2').click()">
+            <div class="drop-plus">+</div>
+            <div class="drop-label">MODEL</div>
+            <button class="remove-img" onclick="removeImg(event,2)">×</button>
+          </div>
+        </div>
+        <input type="file" id="file-0" accept="image/*" hidden onchange="onFile(0,this)">
+        <input type="file" id="file-1" accept="image/*" hidden onchange="onFile(1,this)">
+        <input type="file" id="file-2" accept="image/*" hidden onchange="onFile(2,this)">
+      </div>
+
+      <button class="save-btn" onclick="saveProductToCloud()" id="cloud-save-btn" style="background:#1a7f4b">Save to Cloud (live)</button>
+      <button class="save-btn" onclick="saveProduct()" style="background:#555;margin-top:8px">Save Locally (draft)</button>
+    </div>
+
+    <div class="preview-col">
+      <div class="preview-card-wrap">
+        <h3>Live Preview</h3>
+        <div class="pcard">
+          <div class="pcard-img" id="pv-img">
+            <div class="ph">SWAY</div>
+            <div class="pcard-badge" id="pv-badge" style="display:none">NEW</div>
+          </div>
+          <div class="pcard-body">
+            <div class="pcard-series" id="pv-series">SPARK SERIES</div>
+            <div class="pcard-name" id="pv-name">Product Name</div>
+            <div class="pcard-price" id="pv-price">GHS 100</div>
+            <div class="pcard-stock" id="pv-stock">10 in stock</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="saved-wrap">
+        <h3>Saved Products (<span id="saved-count">0</span>)</h3>
+        <div id="saved-list"><div class="saved-empty">No products saved yet.</div></div>
+        <button class="export-btn" onclick="exportProducts()">Export products.js</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SERIES_LABEL = { spark:'Spark Series', timechaos:'Time & Chaos', marionette:'Marionette' };
+let productImages = [null, null, null];
+
+document.querySelectorAll('.size-chip').forEach(chip => {
+  chip.onclick = () => { chip.classList.toggle('on'); };
+});
+document.querySelectorAll('.tag-chip').forEach(chip => {
+  chip.onclick = () => { chip.classList.toggle('on'); updatePreview(); };
+});
+
+function slugify(s) {
+  return (s || '').toLowerCase().trim().replace(/&/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+
+let productFiles = [null, null, null];   // raw File objects for upload
+function onFile(idx, input) {
+  const file = input.files[0];
+  if (!file) return;
+  productFiles[idx] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    productImages[idx] = e.target.result;
+    const drop = document.getElementById('drop-'+idx);
+    drop.classList.add('filled');
+    let img = drop.querySelector('img');
+    if (!img) { img = document.createElement('img'); drop.insertBefore(img, drop.firstChild); }
+    img.src = e.target.result;
+    updatePreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImg(ev, idx) {
+  ev.stopPropagation();
+  productImages[idx] = null;
+  productFiles[idx] = null;
+  const drop = document.getElementById('drop-'+idx);
+  drop.classList.remove('filled');
+  const img = drop.querySelector('img');
+  if (img) img.remove();
+  document.getElementById('file-'+idx).value = '';
+  updatePreview();
+}
+
+function getTags() {
+  const tags = {};
+  document.querySelectorAll('.tag-chip.on').forEach(c => tags[c.dataset.tag] = true);
+  return tags;
+}
+function getSizes() {
+  return Array.from(document.querySelectorAll('.size-chip.on')).map(c => c.dataset.size);
+}
+
+function updatePreview() {
+  const name  = document.getElementById('f-name').value || 'Product Name';
+  const series= document.getElementById('f-series').value;
+  const price = document.getElementById('f-price').value || '0';
+  const stock = document.getElementById('f-stock').value || '0';
+  const hex   = document.getElementById('f-colorhex').value;
+  const tags  = getTags();
+
+  document.getElementById('pv-name').textContent = name;
+  document.getElementById('pv-series').textContent = (SERIES_LABEL[series] || '').toUpperCase();
+  document.getElementById('pv-price').textContent = 'GHS ' + price;
+  document.getElementById('pv-stock').textContent = stock + ' in stock';
+  document.getElementById('color-preview').style.background = hex;
+
+  const badge = document.getElementById('pv-badge');
+  if (tags.isNew)         { badge.style.display='block'; badge.textContent='NEW'; }
+  else if (tags.isBest)   { badge.style.display='block'; badge.textContent='BEST'; }
+  else if (tags.isLimited){ badge.style.display='block'; badge.textContent='LIMITED'; }
+  else if (tags.isRestock){ badge.style.display='block'; badge.textContent='RESTOCK'; }
+  else badge.style.display='none';
+
+  const pv = document.getElementById('pv-img');
+  let pvImg = pv.querySelector('img.pv-real');
+  if (productImages[0]) {
+    if (!pvImg) {
+      pvImg = document.createElement('img');
+      pvImg.className = 'pv-real';
+      pvImg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;';
+      pv.appendChild(pvImg);
+    }
+    pvImg.src = productImages[0];
+    const ph = pv.querySelector('.ph'); if (ph) ph.style.display='none';
+  } else {
+    if (pvImg) pvImg.remove();
+    const ph = pv.querySelector('.ph'); if (ph) ph.style.display='flex';
+  }
+}
+
+function saveProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('Please enter a product name'); return; }
+  const sizes = getSizes();
+  if (!sizes.length) { toast('Select at least one size'); return; }
+
+  const gender = document.getElementById('f-gender').value;
+  const color  = document.getElementById('f-color').value.trim() || 'White';
+  const slug   = slugify(name);
+  const tags   = getTags();
+  const details = document.getElementById('f-details').value
+    .split('\n').map(s => s.trim()).filter(Boolean);
+
+  const products = load();
+  const id = products.length ? Math.max(...products.map(p => p.id)) + 1 : 101;
+
+  const product = {
+    id, gender,
+    series: document.getElementById('f-series').value,
+    design: slug,
+    name,
+    subtitle: document.getElementById('f-subtitle').value.trim() || 'Graphic Tee',
+    color,
+    colorHex: document.getElementById('f-colorhex').value,
+    price: parseInt(document.getElementById('f-price').value) || 100,
+    sizes,
+    stock: parseInt(document.getElementById('f-stock').value) || 0,
+    isNew: !!tags.isNew, isBest: !!tags.isBest,
+    isLimited: !!tags.isLimited, isRestock: !!tags.isRestock,
+    desc: document.getElementById('f-desc').value.trim(),
+    details,
+    imgFiles: [
+      slug + '-' + gender + '-' + slugify(color) + '.jpg',
+      slug + '-' + gender + '-' + slugify(color) + '-2.jpg',
+      slug + '-' + gender + '-' + slugify(color) + '-3.jpg'
+    ],
+    imgData: productImages.slice()
+  };
+
+  products.push(product);
+  save(products);
+  renderSaved();
+  resetForm();
+  toast(name + ' saved');
+}
+
+function resetForm() {
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-subtitle').value = '';
+  document.getElementById('f-price').value = '100';
+  document.getElementById('f-stock').value = '10';
+  document.getElementById('f-color').value = 'White';
+  document.getElementById('f-colorhex').value = '#f2f2f2';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-details').value = '';
+  document.querySelectorAll('.tag-chip.on').forEach(c => c.classList.remove('on'));
+  document.querySelectorAll('.size-chip').forEach(c => c.classList.add('on'));
+  productImages = [null,null,null];
+  [0,1,2].forEach(i => {
+    const drop = document.getElementById('drop-'+i);
+    drop.classList.remove('filled');
+    const img = drop.querySelector('img'); if (img) img.remove();
+    document.getElementById('file-'+i).value = '';
+  });
+  updatePreview();
+}
+
+function load() {
+  try { return JSON.parse(localStorage.getItem('sway-admin-products') || '[]'); }
+  catch { return []; }
+}
+function save(list) { localStorage.setItem('sway-admin-products', JSON.stringify(list)); }
+
+function renderSaved() {
+  const list = load();
+  document.getElementById('saved-count').textContent = list.length;
+  const el = document.getElementById('saved-list');
+  if (!list.length) { el.innerHTML = '<div class="saved-empty">No products saved yet.</div>'; return; }
+  el.innerHTML = list.map(p =>
+    '<div class="saved-item">' +
+      (p.imgData && p.imgData[0]
+        ? '<img class="saved-thumb" src="' + p.imgData[0] + '">'
+        : '<div class="saved-thumb"></div>') +
+      '<div class="saved-info">' +
+        '<div class="sn">' + p.name + '</div>' +
+        '<div class="sm">' + (SERIES_LABEL[p.series]||'') + ' · ' + p.gender + ' · ' + p.color + ' · GHS ' + p.price + '</div>' +
+      '</div>' +
+      '<button class="saved-del" onclick="delProduct(' + p.id + ')">Delete</button>' +
+    '</div>'
+  ).join('');
+}
+
+function delProduct(id) {
+  let list = load();
+  list = list.filter(p => p.id !== id);
+  save(list);
+  renderSaved();
+  toast('Product removed');
+}
+
+function exportProducts() {
+  const list = load();
+  if (!list.length) { toast('No products to export'); return; }
+  let out = '// SWAY — products added via admin\n';
+  out += '// Paste these objects into the SWAY_PRODUCTS array in js/products.js\n';
+  out += '// Then add the matching images to images/products/\n\n';
+  list.forEach(p => {
+    out += '{\n';
+    out += '  id: ' + p.id + ", gender: '" + p.gender + "', series: '" + p.series + "', design: '" + p.design + "',\n";
+    out += '  name: ' + JSON.stringify(p.name) + ',\n';
+    out += '  subtitle: ' + JSON.stringify(p.subtitle) + ',\n';
+    out += '  color: ' + JSON.stringify(p.color) + ", colorHex: '" + p.colorHex + "',\n";
+    out += '  price: ' + p.price + ', sizes: ' + JSON.stringify(p.sizes) + ', stock: ' + p.stock + ',\n';
+    out += '  isNew: ' + p.isNew + ', isBest: ' + p.isBest + ',\n';
+    out += "  img: 'images/products/" + p.imgFiles[0] + "',\n";
+    out += '  imgs: [' + p.imgFiles.map(f => "'images/products/" + f + "'").join(', ') + '],\n';
+    out += '  desc: ' + JSON.stringify(p.desc) + ',\n';
+    out += '  details: ' + JSON.stringify(p.details) + ',\n';
+    out += '},\n';
+  });
+  out += '\n/* IMAGE FILES TO ADD to images/products/ :\n';
+  list.forEach(p => { p.imgFiles.forEach(f => out += '   ' + f + '\n'); });
+  out += '*/\n';
+
+  const blob = new Blob([out], { type:'text/javascript' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'products-export.js';
+  a.click();
+  toast('Exported products-export.js');
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+renderSaved();
+updatePreview();
+</script>
+<script src="js/admin-cloud.js"></script>
+</body>
+</html>
