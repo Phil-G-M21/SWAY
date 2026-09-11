@@ -185,7 +185,7 @@ const visW = new Set(), visP = new Set();
 
 // preload
 [...WIDE_IMGS, ...PORT_IMGS].forEach(s => {
-  const i = new Image(); i.src = 'images/' + s;
+  const i = new Image(); i.src = (typeof resolveSiteImg==='function') ? resolveSiteImg(s) : 'images/' + s;
 });
 
 function shuffle(a) {
@@ -215,7 +215,7 @@ function initCell(cell, src, isLarge) {
   };
 
   const A = mk(1, 1), B = mk(0, 2);
-  A.src = 'images/' + src;
+  A.src = (typeof resolveSiteImg==='function') ? resolveSiteImg(src) : 'images/' + src;
   cell.appendChild(A);
   cell.appendChild(B);
 
@@ -238,7 +238,7 @@ function initCell(cell, src, isLarge) {
   function swap() {
     const next = pickFrom(pool, vis, cur);
     if (!next) return;
-    back.src = 'images/' + next;
+    back.src = (typeof resolveSiteImg==='function') ? resolveSiteImg(next) : 'images/' + next;
     back.onload = () => {
       back.style.opacity = '1'; front.style.opacity = '0';
       setTimeout(() => {
@@ -300,7 +300,7 @@ function shufflePanel(elId, pool) {
   const order = shuffle(pool);
   let idx = 0;
   const A = mk(1, 1), B = mk(0, 2);
-  A.src = 'images/' + order[0];
+  A.src = (typeof resolveSiteImg==='function') ? resolveSiteImg(order[0]) : 'images/' + order[0];
   // hide placeholder icon once a real image loads
   A.onload = () => { const ph = cell.querySelector('.model-ph'); if (ph) ph.style.display = 'none'; };
   A.onerror = () => { A.style.opacity = '0'; };
@@ -311,7 +311,7 @@ function shufflePanel(elId, pool) {
   function swap() {
     if (pool.length < 2) return;
     idx = (idx + 1) % order.length;
-    back.src = 'images/' + order[idx];
+    back.src = (typeof resolveSiteImg==='function') ? resolveSiteImg(order[idx]) : 'images/' + order[idx];
     back.onload = () => {
       back.style.opacity = '1';
       front.style.opacity = '0';
