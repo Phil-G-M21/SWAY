@@ -5,7 +5,7 @@
  * Real security is enforced by Supabase RLS too — even if someone bypassed
  * this screen, the database would reject their writes.
  */
-(function(){
+function initAdminGate(){
   // Build a full-screen gate overlay
   const gate = document.createElement('div');
   gate.id = 'admin-gate';
@@ -62,4 +62,11 @@
     document.getElementById('gate-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') signIn(); });
     checkAccess();  // auto-unlock if already logged in as admin
   }, 50);
-})();
+}
+
+// Run only once the DOM (body) exists, since the guard builds an overlay.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAdminGate);
+} else {
+  initAdminGate();
+}
