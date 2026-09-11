@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWAY — Image Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f4; color:#0a0a0a; padding:24px; }
+  .wrap { max-width:1000px; margin:0 auto; }
+  h1 { font-size:28px; letter-spacing:.02em; margin-bottom:4px; }
+  .sub { color:#666; font-size:14px; margin-bottom:24px; }
+  .banner { background:#111; color:#fff; padding:14px 18px; border-radius:6px; font-size:13px; line-height:1.6; margin-bottom:24px; }
+  .grid { display:grid; gap:14px; }
+  .row { background:#fff; border:1px solid #e5e5e4; border-radius:8px; padding:16px; display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .row-info { flex:1; min-width:180px; }
+  .row-name { font-weight:600; font-size:15px; }
+  .row-meta { font-size:12px; color:#777; margin-top:2px; text-transform:capitalize; }
+  .drops { display:flex; gap:10px; }
+  .drop { width:80px; height:100px; border:2px dashed #ccc; border-radius:6px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; background:#fafafa; }
+  .drop:hover { border-color:#0a0a0a; }
+  .drop.filled { border-style:solid; border-color:#1a7f4b; }
+  .drop img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .drop .lbl { font-size:9px; color:#999; letter-spacing:.06em; text-transform:uppercase; z-index:1; pointer-events:none; }
+  .drop .plus { font-size:20px; color:#bbb; z-index:1; pointer-events:none; }
+  .row-save { background:#1a7f4b; color:#fff; border:none; padding:12px 18px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+  .row-save:disabled { opacity:.5; }
+  .row.done { border-color:#1a7f4b; background:#f0fdf4; }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#0a0a0a; color:#fff; padding:14px 24px; border-radius:6px; font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:100; }
+  .toast.show { opacity:1; }
+  .status { font-size:11px; color:#1a7f4b; margin-top:4px; font-weight:600; }
+  a.back { color:#666; text-decoration:none; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Back to store</a>
+  <h1 style="margin-top:12px">Image Manager</h1>
+  <p class="sub">Upload the 3 photos for each variant. It updates that exact product. No duplicates.</p>
+  <div class="banner">
+    Drop Front, Back, and Model photos into a row, then hit Save. Photos go to Supabase and show on the live store right away.
+    Best size: 1200 x 1600px, under 500KB each.
+  </div>
+  <div class="grid" id="variant-grid">Loading your products...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let VARIANTS = [];
+const fileStore = {};  // { productId: [File, File, File] }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+async function loadVariants() {
+  const { data, error } = await sway_db.from('products').select('*').order('id');
+  if (error) { document.getElementById('variant-grid').textContent = 'Error: ' + error.message; return; }
+  VARIANTS = data;
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('variant-grid');
+  grid.innerHTML = VARIANTS.map(v => {
+    const hasImg = v.img && v.img.startsWith('http');
+    return `
+    <div class="row ${hasImg ? 'done' : ''}" id="row-${v.id}">
+      <div class="row-info">
+        <div class="row-name">${v.name} — ${v.color}</div>
+        <div class="row-meta">${v.gender} · ${v.series}</div>
+        ${hasImg ? '<div class="status">Has photos</div>' : ''}
+      </div>
+      <div class="drops">
+        ${[0,1,2].map(i => `
+          <div class="drop" id="drop-${v.id}-${i}" onclick="document.getElementById('file-${v.id}-${i}').click()">
+            <div class="plus">+</div><div class="lbl">${['Front','Back','Model'][i]}</div>
+            <input type="file" id="file-${v.id}-${i}" accept="image/*" hidden onchange="onPick(${v.id},${i},this)">
+          </div>`).join('')}
+      </div>
+      <button class="row-save" id="save-${v.id}" onclick="saveRow(${v.id})">Save</button>
+    </div>`;
+  }).join('');
+}
+
+function onPick(id, idx, input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!fileStore[id]) fileStore[id] = [null,null,null];
+  fileStore[id][idx] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const drop = document.getElementById(`drop-${id}-${idx}`);
+    drop.classList.add('filled');
+    let img = drop.querySelector('img');
+    if (!img) { img = document.createElement('img'); drop.insertBefore(img, drop.firstChild); }
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveRow(id) {
+  const files = fileStore[id];
+  if (!files || !files.some(Boolean)) { toast('Add at least the front photo'); return; }
+  const v = VARIANTS.find(x => x.id === id);
+  const btn = document.getElementById('save-' + id);
+  btn.disabled = true; btn.textContent = 'Uploading...';
+
+  try {
+    // filename base from the variant's design-gender-shirt(-spark)
+    let base = `${v.design}-${v.gender}-${(v.shirt||'white').toLowerCase()}`;
+    if (v.spark) base += '-' + v.spark.toLowerCase();
+    const suffixes = ['', '-2', '-3'];
+    const urls = [];
+    for (let i = 0; i < 3; i++) {
+      if (!files[i]) { urls.push(null); continue; }
+      const fname = base + suffixes[i] + '.jpg';
+      const { error: upErr } = await sway_db.storage.from('product-images')
+        .upload(fname, files[i], { upsert:true, contentType: files[i].type || 'image/jpeg' });
+      if (upErr) throw new Error(upErr.message);
+      const { data: pub } = sway_db.storage.from('product-images').getPublicUrl(fname);
+      urls.push(pub.publicUrl);
+    }
+    const mainImg = urls[0] || v.img;
+    const imgsArr = urls.filter(Boolean);
+    const { error: updErr } = await sway_db.from('products')
+      .update({ img: mainImg, imgs: imgsArr }).eq('id', id);
+    if (updErr) throw new Error(updErr.message);
+
+    document.getElementById('row-' + id).classList.add('done');
+    toast(v.name + ' ' + v.color + ' updated');
+  } catch (e) {
+    toast('Failed: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+
+loadVariants();
+</script>
+</body>
+</html>
