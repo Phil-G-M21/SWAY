@@ -79,14 +79,22 @@ function openPDP(id) {
 function renderPDPGallery(p) {
   const wrap  = document.getElementById('pdp-main-wrap');
   const bg    = p.color === 'Black' ? '#0f0f0f' : (p.color === 'Pink' || p.color === 'Orange') ? '#f5e0e6' : '#f2f2f2';
-  let allImgs = (p.imgs && p.imgs.length) ? p.imgs.slice() : (p.img ? [p.img] : []);
-  // Always show 3 thumbnail slots (front/back/model) for a consistent layout
-  if (allImgs.length === 0 && p.img) allImgs = [p.img];
-  while (allImgs.length > 0 && allImgs.length < 3) allImgs.push(allImgs[allImgs.length - 1]);
+  // Build exactly 3 image slots (front/back/model), always.
+  let allImgs = (p.imgs && p.imgs.length) ? p.imgs.slice() : [];
+  if (allImgs.length === 0) {
+    // Derive the expected filenames from the product fields so empty
+    // products still show 3 slots (placeholder until photos are uploaded).
+    let base = p.design + '-' + p.gender + '-' + ((p.shirt || 'white') + '').toLowerCase();
+    if (p.spark) base += '-' + (p.spark + '').toLowerCase();
+    const raw = [base + '.jpg', base + '-2.jpg', base + '-3.jpg'];
+    allImgs = raw.map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : ('images/products/' + u));
+  }
+  while (allImgs.length < 3) allImgs.push(allImgs[allImgs.length - 1] || '');
 
   wrap.style.background = bg;
 
-  wrap.innerHTML = `<img id="pdp-main-src" src="${p.img || ''}" alt="${p.name}"
+  const mainSrc = p.img || allImgs[0] || '';
+  wrap.innerHTML = `<img id="pdp-main-src" src="${mainSrc}" alt="${p.name}"
     style="width:100%;height:auto;display:block;transition:opacity .3s"
     onerror="this.style.opacity='0'">
     <div id="pdp-ph" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">${shirtPH(p)}</div>`;
