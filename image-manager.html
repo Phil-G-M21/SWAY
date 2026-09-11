@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWAY — Product Manager</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=11"></script>
-<script src="js/admin-guard.js?v=11"></script>
+<script src="js/supabase-config.js?v=13"></script>
+<script src="js/admin-guard.js?v=13"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f4; color:#0a0a0a; padding:24px; }
@@ -62,6 +62,25 @@
   .field input, .field select { width:100%; padding:11px 12px; border:1.5px solid #ddd; border-radius:6px; font-size:14px; }
   .modal-actions { display:flex; gap:10px; margin-top:20px; }
   .modal-actions .btn { flex:1; }
+  .view-switch { display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid #e5e5e4; }
+  .vs-btn { background:none; border:none; padding:12px 22px; font-size:14px; font-weight:600; color:#888; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .vs-btn.active { color:#0a0a0a; border-bottom-color:#0a0a0a; }
+  .admin-order { background:#fff; border:1px solid #e5e5e4; border-radius:8px; padding:18px; margin-bottom:12px; }
+  .ao-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .ao-ref { font-weight:700; font-size:15px; }
+  .ao-status { font-size:10px; text-transform:uppercase; letter-spacing:.06em; padding:3px 10px; border-radius:20px; margin-left:8px; color:#fff; }
+  .ao-pending { background:#e0a800; } .ao-paid { background:#1a7f4b; } .ao-shipped { background:#3b5bdb; } .ao-delivered { background:#333; } .ao-cancelled { background:#c0392b; }
+  .ao-total { font-weight:700; }
+  .ao-ref-line { font-size:13px; color:#0a0a0a; background:#fff8e1; padding:8px 10px; border-radius:5px; margin-bottom:8px; }
+  .ao-items { font-size:13px; color:#555; margin-bottom:6px; }
+  .ao-ship { font-size:12px; color:#666; margin-bottom:6px; }
+  .ao-date { font-size:11px; color:#999; margin-bottom:12px; }
+  .ao-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .ao-btn { border:none; padding:9px 16px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; }
+  .ao-confirm { background:#1a7f4b; color:#fff; }
+  .ao-ship-btn { background:#3b5bdb; color:#fff; }
+  .ao-deliver { background:#333; color:#fff; }
+  .ao-cancel { background:none; border:1px solid #e0b4b0; color:#c0392b; }
   .design-group { margin-bottom:26px; }
   .group-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:0 4px; }
   .group-title { font-size:16px; font-weight:700; letter-spacing:.02em; }
@@ -80,12 +99,33 @@
     Each row is one product variant. Drop Front / Back / Model photos and hit Save.
     Best size 1200 x 1600px, under 500KB. Use "Add Variant" for a new product, the trash link to remove one.
   </div>
-  <div class="toolbar">
-    <button class="btn btn-add" onclick="openAdd()">+ Add Variant</button>
-    <button class="btn btn-ghost" onclick="loadVariants()">Refresh</button>
-    <a class="btn btn-ghost" href="site-images.html" style="text-decoration:none">Site Images (hero, model)</a>
+  <div class="view-switch">
+    <button class="vs-btn active" id="vs-products" onclick="switchView('products')">Products</button>
+    <button class="vs-btn" id="vs-orders" onclick="switchView('orders')">Orders</button>
   </div>
-  <div class="grid" id="variant-grid">Loading...</div>
+
+  <div id="view-products">
+    <div class="toolbar">
+      <button class="btn btn-add" onclick="openAdd()">+ Add Variant</button>
+      <button class="btn btn-ghost" onclick="loadVariants()">Refresh</button>
+      <a class="btn btn-ghost" href="site-images.html" style="text-decoration:none">Site Images (hero, model)</a>
+    </div>
+    <div class="grid" id="variant-grid">Loading...</div>
+  </div>
+
+  <div id="view-orders" style="display:none">
+    <div class="toolbar">
+      <button class="btn btn-ghost" onclick="loadAdminOrders()">Refresh Orders</button>
+      <select id="order-filter" class="btn btn-ghost" onclick="event.stopPropagation()" onchange="loadAdminOrders()" style="cursor:pointer">
+        <option value="all">All orders</option>
+        <option value="pending">Pending payment</option>
+        <option value="paid">Paid</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </div>
+    <div id="admin-orders-list">Loading orders...</div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -351,6 +391,69 @@ async function confirmAdd(){
     closeAdd(); loadVariants();
   }catch(e){ toast('Failed: '+e.message); }
   finally{ btn.disabled=false; btn.textContent='Add Variant'; }
+}
+
+
+/* ══ ADMIN ORDERS ══════════════════════════════════════ */
+function switchView(v){
+  document.getElementById('vs-products').classList.toggle('active', v==='products');
+  document.getElementById('vs-orders').classList.toggle('active', v==='orders');
+  document.getElementById('view-products').style.display = v==='products'?'block':'none';
+  document.getElementById('view-orders').style.display = v==='orders'?'block':'none';
+  if(v==='orders') loadAdminOrders();
+}
+
+async function loadAdminOrders(){
+  const el = document.getElementById('admin-orders-list');
+  el.textContent = 'Loading orders...';
+  const filter = document.getElementById('order-filter').value;
+  let q = sway_db.from('orders').select('*').order('created_at',{ascending:false});
+  if(filter!=='all') q = q.eq('status', filter);
+  const { data, error } = await q;
+  if(error){ el.textContent = 'Error: '+error.message; return; }
+  if(!data || !data.length){ el.innerHTML = '<p style="color:#777;padding:20px 0">No orders'+(filter!=='all'?' ('+filter+')':'')+' yet.</p>'; return; }
+
+  el.innerHTML = data.map(o=>{
+    const items = (o.items||[]).map(i=>`${i.qty}x ${i.name} (${i.color||''} ${i.size||''})`).join(', ');
+    const st = o.status||'pending';
+    return `
+    <div class="admin-order">
+      <div class="ao-head">
+        <div>
+          <span class="ao-ref">${o.order_ref||('#'+o.id)}</span>
+          <span class="ao-status ao-${st}">${st}</span>
+        </div>
+        <span class="ao-total">GHS ${o.total}</span>
+      </div>
+      <div class="ao-ref-line"><b>Reference:</b> ${o.username||'—'} &nbsp;·&nbsp; <b>Pay phone:</b> ${o.ship_phone||'—'}</div>
+      <div class="ao-items">${items}</div>
+      <div class="ao-ship"><b>Ship to:</b> ${o.ship_name||''} — ${o.ship_address||''}</div>
+      <div class="ao-date">${new Date(o.created_at).toLocaleString()}</div>
+      <div class="ao-actions">
+        ${st==='pending' ? `<button class="ao-btn ao-confirm" onclick="setOrderStatus(${o.id},'paid')">Confirm Payment</button>` : ''}
+        ${st==='paid' ? `<button class="ao-btn ao-ship-btn" onclick="markShipped(${o.id})">Mark Shipped</button>` : ''}
+        ${st==='shipped' ? `<button class="ao-btn ao-deliver" onclick="setOrderStatus(${o.id},'delivered')">Mark Delivered</button>` : ''}
+        ${st!=='delivered' && st!=='cancelled' ? `<button class="ao-btn ao-cancel" onclick="setOrderStatus(${o.id},'cancelled')">Cancel</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function setOrderStatus(id, status){
+  const { error } = await sway_db.from('orders').update({ status }).eq('id', id);
+  if(error){ toast('Failed: '+error.message); return; }
+  toast('Order marked '+status);
+  loadAdminOrders();
+}
+
+async function markShipped(id){
+  const tracking = prompt('Add a tracking note or courier info (optional, shown to customer):','');
+  const upd = { status:'shipped' };
+  if(tracking) upd.tracking = tracking;
+  const { error } = await sway_db.from('orders').update(upd).eq('id', id);
+  if(error){ toast('Failed: '+error.message); return; }
+  toast('Order marked shipped');
+  loadAdminOrders();
 }
 
 function onAdminReady(){ loadVariants(); }

@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=11">
-<link rel="stylesheet" href="css/layout.css?v=11">
-<link rel="stylesheet" href="css/components.css?v=11">
+<link rel="stylesheet" href="css/base.css?v=13">
+<link rel="stylesheet" href="css/layout.css?v=13">
+<link rel="stylesheet" href="css/components.css?v=13">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=11"></script>
+<script src="js/supabase-config.js?v=13"></script>
 </head>
 <body>
 
@@ -695,7 +695,7 @@
 <div class="footer-bottom" id="footer-bottom">
   <span>© 2026 SWAY. All rights reserved.</span>
   <div class="pay-chips">
-    <span class="pay-chip">MTN MoMo</span>
+    <span class="pay-chip">Mobile Money</span>
     <span class="pay-chip">Vodafone Cash</span>
     <span class="pay-chip">Paystack</span>
   </div>
@@ -810,7 +810,7 @@
     </div>
     <button class="checkout-btn" onclick="openCheckout()">Checkout</button>
     <div class="pay-options">
-      <span class="pay-badge">MTN MoMo</span>
+      <span class="pay-badge">Mobile Money</span>
       <span class="pay-badge">Vodafone Cash</span>
       <span class="pay-badge">Paystack</span>
       <span class="pay-badge">Bank Transfer</span>
@@ -881,28 +881,20 @@
           </div>
         </div>
         <div id="co-step3" style="display:none">
-          <div class="section-heading">Payment</div>
-          <div class="payment-tabs">
-            <button class="payment-tab active" onclick="setPayTab('momo',this)">Mobile Money</button>
-            <button class="payment-tab" onclick="setPayTab('card',this)">Card</button>
+          <div class="section-heading">Pay with Mobile Money</div>
+          <div class="momo-pay-box">
+            <p class="momo-intro">Send the total to the MoMo account below, then place your order. We confirm your payment and ship once received.</p>
+            <div class="momo-detail"><span class="momo-lbl">Amount</span><span class="momo-val" id="momo-amount">GHS 0</span></div>
+            <div class="momo-detail"><span class="momo-lbl">Network</span><span class="momo-val" id="momo-pay-network">—</span></div>
+            <div class="momo-detail"><span class="momo-lbl">MoMo Number</span><span class="momo-val" id="momo-pay-number">—</span></div>
+            <div class="momo-detail"><span class="momo-lbl">Account Name</span><span class="momo-val" id="momo-pay-name">—</span></div>
+            <div class="momo-detail momo-ref"><span class="momo-lbl">Reference (important)</span><span class="momo-val" id="momo-ref">—</span></div>
+            <p class="momo-warn">Use your reference above when sending money, so we can match your payment. MoMo accounts show different names, the reference is how we find your order.</p>
           </div>
-          <div class="payment-fields" id="pay-momo">
-            <div class="form-field"><label>Network</label><select id="momo-network"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
-            <div class="form-field"><label>MoMo Number</label><input id="momo-number" type="tel" placeholder="+233 24 000 0000"></div>
-            <p style="font-size:12px;color:#666;margin-top:8px">You will receive a prompt on your phone to approve the payment.</p>
-          </div>
-          <div class="payment-fields" id="pay-card" style="display:none">
-            <div class="form-field"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
-            <div class="form-row-2">
-              <div class="form-field"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
-              <div class="form-field"><label>CVV</label><input type="text" placeholder="•••" maxlength="4"></div>
-            </div>
-            <div class="form-field"><label>Name on Card</label><input type="text" placeholder="KOFI MENSAH"></div>
-            <p style="font-size:11px;color:#666;margin-top:6px">Secured via Paystack. Card details never stored.</p>
-          </div>
-          <div style="display:flex;gap:10px;margin-top:8px">
+          <div class="form-field" style="margin-top:16px"><label>Your MoMo number (the one you'll pay from)</label><input id="momo-number" type="tel" placeholder="024 000 0000"></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
             <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
-            <button class="place-order-btn" style="flex:1" id="place-order-btn" onclick="placeOrder()">Place Order</button>
+            <button class="place-order-btn" style="flex:1" id="place-order-btn" onclick="placeOrder()">I've Sent Payment · Place Order</button>
           </div>
         </div>
       </div>
@@ -934,16 +926,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=11"></script>
-<script src="js/images.js?v=11"></script>
-<script src="js/products-loader.js?v=11"></script>
-<script src="js/currency.js?v=11"></script>
-<script src="js/cart.js?v=11"></script>
-<script src="js/ui.js?v=11"></script>
-<script src="js/pdp.js?v=11"></script>
-<script src="js/pages.js?v=11"></script>
-<script src="js/checkout.js?v=11"></script>
-<script src="js/accounts.js?v=11"></script>
+<script src="js/products.js?v=13"></script>
+<script src="js/images.js?v=13"></script>
+<script src="js/products-loader.js?v=13"></script>
+<script src="js/currency.js?v=13"></script>
+<script src="js/cart.js?v=13"></script>
+<script src="js/ui.js?v=13"></script>
+<script src="js/pdp.js?v=13"></script>
+<script src="js/pages.js?v=13"></script>
+<script src="js/checkout.js?v=13"></script>
+<script src="js/accounts.js?v=13"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }

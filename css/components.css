@@ -872,3 +872,13 @@
 @media (max-width:640px) {
   .pdp-mobile-sticky.pdp-open { display: block; }
 }
+
+/* MoMo manual payment box */
+.momo-pay-box { background:#f8f8f7; border:1px solid var(--border); border-radius:8px; padding:20px; }
+.momo-intro { font-size:13px; color:#555; line-height:1.6; margin-bottom:16px; }
+.momo-detail { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #ececec; }
+.momo-detail:last-of-type { border-bottom:none; }
+.momo-lbl { font-size:12px; color:#888; text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+.momo-val { font-size:15px; font-weight:600; color:#0a0a0a; }
+.momo-ref .momo-val { background:#fff3cd; padding:4px 12px; border-radius:5px; }
+.momo-warn { font-size:12px; color:#8a6d00; background:#fff8e1; padding:10px 12px; border-radius:6px; margin-top:14px; line-height:1.5; }

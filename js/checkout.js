@@ -3,6 +3,14 @@
  */
 
 /* ═══════════════════════════════════════════════════════════
+   MOMO (manual) CONFIG — edit these to YOUR MoMo account
+═══════════════════════════════════════════════════════════ */
+const SWAY_MOMO_NUMBER = '020 472 5809';        // the number customers pay to
+const SWAY_MOMO_NAME   = 'Joana Adu-Okai';       // the name on that MoMo account
+const SWAY_MOMO_NETWORK= 'Telecel';               // the network
+// Admin gets notified of new orders on this WhatsApp (from ui.js SWAY_WHATSAPP)
+
+/* ═══════════════════════════════════════════════════════════
    PAYSTACK CONFIG
    ───────────────────────────────────────────────────────────
    To go LIVE with real payments:
@@ -68,6 +76,28 @@ function coGoStep(n) {
     el.classList.toggle('done', i < n);
   });
   updateCheckoutSummary();
+  if (n === 3) fillMomoDetails();
+}
+
+// Fill the MoMo payment box with your account details + the customer's reference
+async function fillMomoDetails() {
+  const total = cartTotal();
+  const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+  set('momo-amount', 'GHS ' + total);
+  set('momo-pay-number', SWAY_MOMO_NUMBER);
+  set('momo-pay-name', SWAY_MOMO_NAME);
+  set('momo-pay-network', SWAY_MOMO_NETWORK);
+  // reference = username if logged in, else their name from the form
+  let ref = '';
+  try {
+    if (typeof currentUser === 'function') {
+      const u = await currentUser();
+      ref = u?.user_metadata?.full_name || u?.email?.split('@')[0] || '';
+    }
+  } catch(e){}
+  if (!ref) ref = (document.getElementById('co-name')||{}).value?.trim() || 'your name';
+  set('momo-ref', ref);
+  window._swayOrderRef = ref;
 }
 function coNext(from) {
   if (from === 1) {
@@ -127,19 +157,81 @@ function updateCheckoutSummary() {
   }).join('');
 }
 
-function placeOrder() {
+async function placeOrder() {
   const email = document.getElementById('co-email').value.trim();
   if (!email) { showToast('Please enter your email'); return; }
-  if (activePayTab === 'momo' && !document.getElementById('momo-number').value.trim()) {
-    showToast('Please enter your MoMo number'); return;
+  if (!document.getElementById('momo-number').value.trim()) {
+    showToast('Please enter the MoMo number you paid from'); return;
   }
 
-  // Route to real Paystack when it's set up, otherwise demo mode
-  if (PAYSTACK_ENABLED && PAYSTACK_PUBLIC_KEY && typeof PaystackPop !== 'undefined') {
-    payWithPaystack(email);
-  } else {
-    demoPayment(email);
+  const btn = document.getElementById('place-order-btn');
+  btn.disabled = true; btn.textContent = 'Placing order...';
+
+  const orderNum = 'SW' + Date.now().toString().slice(-6);
+  const ref = window._swayOrderRef || (document.getElementById('co-name')||{}).value?.trim() || '';
+
+  // Create a PENDING order in the database (awaiting your MoMo confirmation)
+  const saved = await savePendingOrder(orderNum, email, ref);
+  if (!saved) {
+    showToast('Could not place order, please try again');
+    btn.disabled = false; btn.textContent = "I've Sent Payment · Place Order";
+    return;
   }
+
+  // Notify admin (WhatsApp) of the new pending order
+  notifyAdminNewOrder(orderNum, ref, email);
+
+  showOrderConfirmedPending(orderNum, email, ref);
+  btn.disabled = false; btn.textContent = "I've Sent Payment · Place Order";
+}
+
+// Save a pending order to the database
+async function savePendingOrder(orderNum, email, ref){
+  if (typeof sway_db === 'undefined') return false;
+  try {
+    const { data: u } = await sway_db.auth.getUser();
+    const items = cart.map(i => ({ name:i.product.name, color:i.product.color, size:i.size, qty:i.qty, price:i.product.price }));
+    const { error } = await sway_db.from('orders').insert({
+      user_id: u?.user?.id || null,
+      order_ref: orderNum,
+      username: ref,
+      items,
+      subtotal: cartSubtotal(), shipping: cartShipping(), total: cartTotal(),
+      currency: 'GHS', status: 'pending',
+      ship_name: (document.getElementById('co-name')||{}).value || '',
+      ship_phone: (document.getElementById('momo-number')||{}).value || '',
+      ship_address: (document.getElementById('co-address')||{}).value || ''
+    });
+    return !error;
+  } catch(e){ console.warn('Order save failed:', e); return false; }
+}
+
+// Open WhatsApp to the admin with the new order details
+function notifyAdminNewOrder(orderNum, ref, email){
+  const total = cartTotal();
+  const items = cart.map(i => `${i.qty}x ${i.product.name} (${i.product.color}, ${i.size})`).join(', ');
+  const adminWA = (typeof SWAY_WHATSAPP !== 'undefined') ? SWAY_WHATSAPP : '233204725809';
+  const text = encodeURIComponent(
+    `NEW ORDER ${orderNum}\nReference: ${ref}\nTotal: GHS ${total}\nItems: ${items}\nCustomer: ${email}\n\nAwaiting MoMo payment confirmation.`
+  );
+  // Opens WhatsApp for the CUSTOMER to send you the order note (also serves as their proof)
+  window.open('https://wa.me/' + adminWA + '?text=' + text, '_blank');
+}
+
+// Confirmation screen for a pending order
+function showOrderConfirmedPending(orderNum, email, ref){
+  const total = cartTotal();
+  setText('oc-sub', 'Order placed. We will confirm your payment shortly.');
+  document.getElementById('oc-details').innerHTML = `
+    <div class="oc-row"><span class="label">Order</span><span>${orderNum}</span></div>
+    <div class="oc-row"><span class="label">Reference</span><span>${ref}</span></div>
+    <div class="oc-row"><span class="label">Total</span><span>${fmt(total)} (GHS ${total})</span></div>
+    <div class="oc-row"><span class="label">Status</span><span>Pending payment</span></div>
+    <div class="oc-row"><span class="label">Pay to</span><span>${SWAY_MOMO_NETWORK} ${SWAY_MOMO_NUMBER}</span></div>\n    <div class="oc-row"><span class="label">Name</span><span>${SWAY_MOMO_NAME}</span></div>`;
+  closeCheckout();
+  document.getElementById('order-confirmed').classList.add('open');
+  cart = []; promoApplied = false; promoRate = 0;
+  saveCart(); renderCart(); updateCartBadge(); updateMobileCart();
 }
 
 /* Real payment — runs when Paystack is configured */
