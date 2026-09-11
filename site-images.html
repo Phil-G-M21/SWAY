@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWAY — Site Images</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js"></script>
+<script src="js/supabase-config.js?v=3"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f4; color:#0a0a0a; padding:24px; }
@@ -50,17 +50,17 @@ function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.
 
 // Define all the site image slots grouped by purpose
 const SECTIONS = [
-  { title:'Homepage Hero + Shop Panels (Men, wide)', desc:'Big landscape shots. Used on the homepage hero and Shop Men panel.', portrait:false,
+  { title:'Homepage Hero + Shop Panels (Men)', desc:'Landscape shots for the homepage hero and Shop Men panel. Size: 1600 x 1000 px (landscape).', portrait:false,
     files:['wide1.jpg','wide2.jpg','wide3.jpg','wide4.jpg','wide5.jpg'] },
-  { title:'Homepage Hero + Shop Panels (Women, wide)', desc:'Same but for women (filenames start with f).', portrait:false,
+  { title:'Homepage Hero + Shop Panels (Women)', desc:'Same as above, for women. Size: 1600 x 1000 px (landscape).', portrait:false,
     files:['fwide1.jpg','fwide2.jpg','fwide3.jpg','fwide4.jpg','fwide5.jpg'] },
-  { title:'Model Shots (Men, portrait)', desc:'Tall shots for the homepage grid and lookbook.', portrait:true,
+  { title:'Model Shots (Men)', desc:'Tall portrait shots for the homepage grid and lookbook. Size: 1000 x 1400 px (portrait).', portrait:true,
     files:['model1.jpg','model2.jpg','model3.jpg','model4.jpg','model5.jpg'] },
-  { title:'Model Shots (Women, portrait)', desc:'Tall shots for women.', portrait:true,
+  { title:'Model Shots (Women)', desc:'Tall portrait shots for women. Size: 1000 x 1400 px (portrait).', portrait:true,
     files:['fmodel1.jpg','fmodel2.jpg','fmodel3.jpg','fmodel4.jpg','fmodel5.jpg'] },
-  { title:'Series Backgrounds', desc:'Behind the 3 series cards on the homepage.', portrait:false,
+  { title:'Series Backgrounds', desc:'Behind the 3 series cards on the homepage. Size: 1200 x 800 px (landscape).', portrait:false,
     files:['series-spark.jpg','series-timechaos.jpg','series-marionette.jpg'] },
-  { title:'About Banner', desc:'The big image on the About page.', portrait:false,
+  { title:'About Banner', desc:'The big banner on the About page. Size: 1600 x 1000 px (landscape).', portrait:false,
     files:['about-hero.jpg'] },
 ];
 
