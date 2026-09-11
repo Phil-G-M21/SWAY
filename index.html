@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=9">
-<link rel="stylesheet" href="css/layout.css?v=9">
-<link rel="stylesheet" href="css/components.css?v=9">
+<link rel="stylesheet" href="css/base.css?v=11">
+<link rel="stylesheet" href="css/layout.css?v=11">
+<link rel="stylesheet" href="css/components.css?v=11">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=9"></script>
+<script src="js/supabase-config.js?v=11"></script>
 </head>
 <body>
 
@@ -652,7 +652,10 @@
         <div class="form-field"><label>Name</label><input type="text" id="contact-name" placeholder="Your name"></div>
         <div class="form-field"><label>Email</label><input type="email" id="contact-email-input" placeholder="you@email.com"></div>
         <div class="form-field"><label>Message</label><textarea id="contact-msg" rows="4" placeholder="How can we help?"></textarea></div>
-        <button class="account-btn-primary" onclick="submitContact()">Send Message</button>
+        <div class="contact-send-row">
+          <button class="account-btn-primary contact-wa" onclick="submitContactWhatsApp()">Send via WhatsApp</button>
+          <button class="account-btn-primary contact-em" onclick="submitContactEmail()">Send via Email</button>
+        </div>
       </div>
     </div>
   </div>
@@ -690,7 +693,7 @@
   </div>
 </footer>
 <div class="footer-bottom" id="footer-bottom">
-  <span>© 2026 SWAY · <a href="image-manager.html" style="color:inherit;opacity:.5;text-decoration:none">Manage</a></span>
+  <span>© 2026 SWAY. All rights reserved.</span>
   <div class="pay-chips">
     <span class="pay-chip">MTN MoMo</span>
     <span class="pay-chip">Vodafone Cash</span>
@@ -931,16 +934,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=9"></script>
-<script src="js/images.js?v=9"></script>
-<script src="js/products-loader.js?v=9"></script>
-<script src="js/currency.js?v=9"></script>
-<script src="js/cart.js?v=9"></script>
-<script src="js/ui.js?v=9"></script>
-<script src="js/pdp.js?v=9"></script>
-<script src="js/pages.js?v=9"></script>
-<script src="js/checkout.js?v=9"></script>
-<script src="js/accounts.js?v=9"></script>
+<script src="js/products.js?v=11"></script>
+<script src="js/images.js?v=11"></script>
+<script src="js/products-loader.js?v=11"></script>
+<script src="js/currency.js?v=11"></script>
+<script src="js/cart.js?v=11"></script>
+<script src="js/ui.js?v=11"></script>
+<script src="js/pdp.js?v=11"></script>
+<script src="js/pages.js?v=11"></script>
+<script src="js/checkout.js?v=11"></script>
+<script src="js/accounts.js?v=11"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }
@@ -1087,9 +1090,14 @@ function renderShopPage(gender) {
 }
 
 /* ── Newsletter ── */
+async function saveNewsletter(email){
+  if (typeof sway_db === 'undefined') return;
+  try { await sway_db.from('newsletter').insert({ email }); } catch(e){ /* dup email is fine */ }
+}
 function submitNewsletter() {
   const v = document.getElementById('nl-email').value.trim();
   if (!v.includes('@')) { showToast('Please enter a valid email'); return; }
+  saveNewsletter(v);
   document.querySelector('#page-home .newsletter-form').style.display = 'none';
   document.getElementById('nl-success').classList.add('show');
   showToast('Welcome to SWAY.');
@@ -1097,6 +1105,7 @@ function submitNewsletter() {
 function submitNLAbout() {
   const v = document.getElementById('nl-email-about').value.trim();
   if (!v.includes('@')) { showToast('Please enter a valid email'); return; }
+  saveNewsletter(v);
   showToast('Welcome to SWAY.');
 }
 

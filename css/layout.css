@@ -585,11 +585,11 @@ footer { border-top: 1px solid var(--border); padding: 44px 24px 28px; display: 
 .faq-item.open .faq-a { max-height: 400px; padding: 0 0 22px; }
 
 /* Contact */
-.contact-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin: 28px 0 40px; }
+.contact-methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 28px 0 40px; }
 .contact-method { display: flex; flex-direction: column; gap: 4px; padding: 18px; border: 1px solid var(--border); border-radius: var(--r); text-decoration: none; transition: border-color .2s; }
 a.contact-method:hover { border-color: #0a0a0a; }
 .contact-method-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #888; font-weight: 600; }
-.contact-method-val { font-size: 15px; color: #0a0a0a; font-weight: 500; }
+.contact-method-val { font-size: 14px; color: #0a0a0a; font-weight: 500; word-break: break-word; overflow-wrap: anywhere; }
 .contact-form { max-width: 480px; }
 .contact-form h2 { font-size: 15px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 18px; }
 .contact-form textarea { width: 100%; border: 1.5px solid var(--border); padding: 12px 14px; font-size: 14px; outline: none; font-family: var(--font-body); resize: vertical; transition: border-color .2s; }
@@ -635,3 +635,12 @@ a.contact-method:hover { border-color: #0a0a0a; }
 .pass-wrap input { width: 100%; padding-right: 60px; }
 .pass-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 8px; letter-spacing: .02em; }
 .pass-toggle:hover { color: #0a0a0a; }
+
+/* Contact send buttons */
+.contact-send-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.contact-send-row button { flex: 1; min-width: 150px; }
+.contact-wa { background: #1a7f4b !important; }
+
+/* Order cancel button */
+.order-cancel { margin-top: 12px; background: none; border: 1px solid #e0b4b0; color: #c0392b; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 6px; cursor: pointer; letter-spacing: .03em; }
+.order-cancel:hover { background: #fdf0ef; }

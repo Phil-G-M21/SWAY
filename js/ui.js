@@ -398,17 +398,33 @@ function toggleFaq(btn) {
 const SWAY_WHATSAPP = '233204725809';
 const SWAY_EMAIL = 'swayofficial00@gmail.com';
 
-function submitContact() {
+function getContactMsg() {
   const name = (document.getElementById('contact-name')||{}).value || '';
   const email = (document.getElementById('contact-email-input')||{}).value || '';
   const msg = (document.getElementById('contact-msg')||{}).value || '';
-  if (!name.trim() || !msg.trim()) { showToast('Please add your name and message'); return; }
-  // Opens the user's mail app with the message prefilled
-  const subject = encodeURIComponent('SWAY enquiry from ' + name);
-  const body = encodeURIComponent(msg + '\n\nFrom: ' + name + (email ? ' (' + email + ')' : ''));
+  if (!name.trim() || !msg.trim()) { showToast('Please add your name and message'); return null; }
+  return { name, email, msg };
+}
+
+// Send via WhatsApp — opens a chat to SWAY with the message ready to send
+function submitContactWhatsApp() {
+  const d = getContactMsg(); if (!d) return;
+  const text = encodeURIComponent(`Hi SWAY, I'm ${d.name}.\n\n${d.msg}${d.email ? '\n\nReply to: ' + d.email : ''}`);
+  window.open('https://wa.me/' + SWAY_WHATSAPP + '?text=' + text, '_blank');
+  showToast('Opening WhatsApp...');
+}
+
+// Send via Email — opens the mail app addressed to SWAY
+function submitContactEmail() {
+  const d = getContactMsg(); if (!d) return;
+  const subject = encodeURIComponent('SWAY enquiry from ' + d.name);
+  const body = encodeURIComponent(d.msg + '\n\nFrom: ' + d.name + (d.email ? ' (' + d.email + ')' : ''));
   window.location.href = `mailto:${SWAY_EMAIL}?subject=${subject}&body=${body}`;
   showToast('Opening your mail app...');
 }
+
+// keep old name working
+function submitContact() { submitContactWhatsApp(); }
 
 // Wire the contact page WhatsApp + email links once the DOM is ready
 function initContactLinks() {

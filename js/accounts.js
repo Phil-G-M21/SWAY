@@ -98,7 +98,9 @@ async function loadOrders(){
   const { data, error } = await sway_db.from('orders').select('*').order('created_at',{ascending:false});
   if(error){ el.innerHTML='<p class="acct-empty">Could not load orders.</p>'; return; }
   if(!data || !data.length){ el.innerHTML='<p class="acct-empty">No orders yet. Your purchases will show here.</p>'; return; }
-  el.innerHTML = data.map(o=>`
+  el.innerHTML = data.map(o=>{
+    const canCancel = (o.status||'paid') === 'paid';  // only before it ships
+    return `
     <div class="order-card">
       <div class="order-head">
         <span class="order-ref">Order ${o.order_ref||('#'+o.id)}</span>
@@ -109,7 +111,18 @@ async function loadOrders(){
         <span>${new Date(o.created_at).toLocaleDateString()}</span>
         <span class="order-total">${o.currency||'GHS'} ${o.total}</span>
       </div>
-    </div>`).join('');
+      ${canCancel ? `<button class="order-cancel" onclick="cancelOrder('${o.order_ref||o.id}','${(o.total)}')">Request Cancellation</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Cancelling contacts SWAY (WhatsApp) with the order details so the team
+// can stop it before it ships. Orders can't be auto-cancelled after payment
+// without a refund flow, so this routes it to you to handle.
+function cancelOrder(ref, total){
+  if(!confirm('Request cancellation for order '+ref+'?\n\nThis sends a message to SWAY to stop the order. If it has not shipped, we will cancel and refund.')) return;
+  const text = encodeURIComponent(`Hi SWAY, I'd like to CANCEL my order ${ref} (GHS ${total}). Please confirm.`);
+  window.open('https://wa.me/' + (typeof SWAY_WHATSAPP!=='undefined'?SWAY_WHATSAPP:'233204725809') + '?text=' + text, '_blank');
 }
 
 async function loadAddresses(){
