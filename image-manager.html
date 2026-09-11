@@ -35,6 +35,7 @@
   .row-actions { display:flex; flex-direction:column; gap:6px; }
   .row-save { background:#1a7f4b; color:#fff; border:none; padding:10px 16px; border-radius:6px; font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
   .row-save:disabled { opacity:.5; }
+  .row-img-del { background:none; border:none; color:#b26a00; font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; }
   .row-del { background:none; border:none; color:#c0392b; font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:.05em; }
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#0a0a0a; color:#fff; padding:14px 24px; border-radius:6px; font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:100; }
   .toast.show { opacity:1; }
@@ -154,7 +155,8 @@ function renderGrid(){
         </div>
         <div class="row-actions">
           <button class="row-save" id="save-${v.id}" onclick="saveRow(${v.id})">Save Photos</button>
-          <button class="row-del" onclick="deleteRow(${v.id})">Delete</button>
+          <button class="row-img-del" onclick="removeImage(${v.id})">Remove Image</button>
+          <button class="row-del" onclick="deleteRow(${v.id})">Delete Product</button>
         </div>
       </div>`;
     }).join('');
@@ -230,9 +232,26 @@ async function saveRow(id){
   finally{ btn.disabled=false; btn.textContent='Save Photos'; }
 }
 
+// Remove ONLY the photos — keeps the product in the catalog.
+async function removeImage(id){
+  const v=VARIANTS.find(x=>x.id===id);
+  if(!confirm(`Remove the photos for "${v.name} — ${v.color}"?\n\nThe product stays in your catalog, it just goes back to the placeholder. Use this to replace a wrong photo.`)) return;
+  // delete the image files from storage
+  try{
+    let base=`${v.design}-${v.gender}-${(v.shirt||'white').toLowerCase()}`;
+    if(v.spark) base+='-'+v.spark.toLowerCase();
+    await sway_db.storage.from('product-images').remove([base+'.jpg', base+'-2.jpg', base+'-3.jpg']);
+  }catch(e){}
+  // clear the img fields on the product (keeps the row)
+  const {error}=await sway_db.from('products').update({ img:'', imgs:[] }).eq('id',id);
+  if(error){ toast('Failed: '+error.message); return; }
+  toast('Photos removed. '+v.name+' '+v.color+' is still in your catalog.');
+  loadVariants();
+}
+
 async function deleteRow(id){
   const v=VARIANTS.find(x=>x.id===id);
-  if(!confirm(`Delete "${v.name} — ${v.color}"?\n\nThis removes the product AND its photos from the store completely. This cannot be undone.`)) return;
+  if(!confirm(`DELETE the whole product "${v.name} — ${v.color}"?\n\nThis removes the variant AND its photos entirely. Only do this for products you added by mistake.\n\nTo just change a photo, use "Remove Image" instead. This cannot be undone.`)) return;
 
   // 1. Delete the image files from storage (front, back, model)
   try {
