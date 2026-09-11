@@ -226,8 +226,8 @@ function initCell(cell, src, isLarge) {
     ov.innerHTML = `<div class="tag">SS26 Campaign</div>
       <h1>MOVE<br>DIFFERENT.</h1>
       <div class="hero-cta">
-        <button class="hero-btn primary" onclick="document.querySelector('.shop-tabs').scrollIntoView({behavior:'smooth'})">Shop Now</button>
-        <button class="hero-btn secondary" onclick="setGender('women',document.querySelectorAll('.nav-text-links button')[1]);document.querySelector('.shop-tabs').scrollIntoView({behavior:'smooth'})">Women's</button>
+        <button class="hero-btn primary" onclick="showSection('women')">Shop Now</button>
+        <button class="hero-btn secondary" onclick="showSection('men')">Men's</button>
       </div>`;
     cell.appendChild(ov);
   }
@@ -346,7 +346,7 @@ function initLookbook() {
   while (wi < wides.length || pi < portraits.length) {
     if (wi < wides.length) {
       html += `<div class="lb-wide">
-        <img src="images/${wides[wi]}" alt="SWAY campaign" loading="lazy" onerror="this.parentNode.classList.add('lb-empty')">
+        <img src="${(typeof resolveSiteImg==='function')?resolveSiteImg(wides[wi]):'images/'+wides[wi]}" alt="SWAY campaign" loading="lazy" onerror="this.parentNode.classList.add('lb-empty')">
       </div>`;
       wi++;
     }
@@ -354,7 +354,7 @@ function initLookbook() {
       html += '<div class="lb-pair">';
       for (let k = 0; k < 2 && pi < portraits.length; k++, pi++) {
         html += `<div class="lb-port">
-          <img src="images/${portraits[pi]}" alt="SWAY campaign" loading="lazy" onerror="this.parentNode.classList.add('lb-empty')">
+          <img src="${(typeof resolveSiteImg==='function')?resolveSiteImg(portraits[pi]):'images/'+portraits[pi]}" alt="SWAY campaign" loading="lazy" onerror="this.parentNode.classList.add('lb-empty')">
         </div>`;
       }
       html += '</div>';

@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=5">
-<link rel="stylesheet" href="css/layout.css?v=5">
-<link rel="stylesheet" href="css/components.css?v=5">
+<link rel="stylesheet" href="css/base.css?v=6">
+<link rel="stylesheet" href="css/layout.css?v=6">
+<link rel="stylesheet" href="css/components.css?v=6">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=5"></script>
+<script src="js/supabase-config.js?v=6"></script>
 </head>
 <body>
 
@@ -224,38 +224,38 @@
     <div class="series-grid">
       <div class="series-card" onclick="showSection('men')">
         <div class="series-card-img">
-          <img src="images/series-spark.jpg" alt="Spark Series" onerror="this.style.display='none'">
+          <img src="https://mvadvbjjwqgkrynpfomu.supabase.co/storage/v1/object/public/store-images/series-spark.jpg" alt="Spark Series" onerror="this.style.display='none'">
           <div class="series-ph-word">SPARK</div>
         </div>
         <div class="series-card-info">
           <p class="series-card-label">Series 01</p>
           <h3 class="series-card-name">Spark Series</h3>
           <p class="series-card-desc">The signature match graphic. White or black tee, spark in orange, blue, or pink.</p>
-          <button class="series-card-btn">Shop Now</button>
+          <button class="series-card-btn" onclick="showSection('women');event.stopPropagation()">Shop Now</button>
         </div>
       </div>
       <div class="series-card" onclick="showSection('men')">
         <div class="series-card-img">
-          <img src="images/series-timechaos.jpg" alt="Time and Chaos Series" onerror="this.style.display='none'">
+          <img src="https://mvadvbjjwqgkrynpfomu.supabase.co/storage/v1/object/public/store-images/series-timechaos.jpg" alt="Time and Chaos Series" onerror="this.style.display='none'">
           <div class="series-ph-word">TIME</div>
         </div>
         <div class="series-card-info">
           <p class="series-card-label">Series 02</p>
           <h3 class="series-card-name">Time &amp; Chaos</h3>
           <p class="series-card-desc">Hourglass, tide, and coordinate graphics. White or black. Calm design, chaotic energy.</p>
-          <button class="series-card-btn">Shop Now</button>
+          <button class="series-card-btn" onclick="showSection('women');event.stopPropagation()">Shop Now</button>
         </div>
       </div>
       <div class="series-card" onclick="showSection('men')">
         <div class="series-card-img">
-          <img src="images/series-marionette.jpg" alt="Marionette Series" onerror="this.style.display='none'">
+          <img src="https://mvadvbjjwqgkrynpfomu.supabase.co/storage/v1/object/public/store-images/series-marionette.jpg" alt="Marionette Series" onerror="this.style.display='none'">
           <div class="series-ph-word">PUPPET</div>
         </div>
         <div class="series-card-info">
           <p class="series-card-label">Series 03</p>
           <h3 class="series-card-name">Marionette</h3>
           <p class="series-card-desc">Skeleton hands pulling strings. Dark fantasy across the full back. White or black.</p>
-          <button class="series-card-btn">Shop Now</button>
+          <button class="series-card-btn" onclick="showSection('women');event.stopPropagation()">Shop Now</button>
         </div>
       </div>
     </div>
@@ -364,7 +364,7 @@
 <section id="page-about" class="site-section" style="display:none">
 
   <div class="about-hero">
-    <img class="about-hero-bg" src="images/about-hero.jpg" alt="" onerror="this.style.display='none'">
+    <img class="about-hero-bg" src="https://mvadvbjjwqgkrynpfomu.supabase.co/storage/v1/object/public/store-images/about-hero.jpg" alt="" onerror="this.style.display='none'">
     <div class="about-hero-inner">
       <p class="section-eyebrow" style="color:rgba(255,255,255,.4)">Made in Ghana</p>
       <h1 class="about-title">Move Different.</h1>
@@ -885,16 +885,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=5"></script>
-<script src="js/images.js?v=5"></script>
-<script src="js/products-loader.js?v=5"></script>
-<script src="js/currency.js?v=5"></script>
-<script src="js/cart.js?v=5"></script>
-<script src="js/ui.js?v=5"></script>
-<script src="js/pdp.js?v=5"></script>
-<script src="js/pages.js?v=5"></script>
-<script src="js/checkout.js?v=5"></script>
-<script src="js/accounts.js?v=5"></script>
+<script src="js/products.js?v=6"></script>
+<script src="js/images.js?v=6"></script>
+<script src="js/products-loader.js?v=6"></script>
+<script src="js/currency.js?v=6"></script>
+<script src="js/cart.js?v=6"></script>
+<script src="js/ui.js?v=6"></script>
+<script src="js/pdp.js?v=6"></script>
+<script src="js/pages.js?v=6"></script>
+<script src="js/checkout.js?v=6"></script>
+<script src="js/accounts.js?v=6"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }
