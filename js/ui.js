@@ -384,3 +384,36 @@ function initReveal() {
   }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
   els.forEach(e => obs.observe(e));
 }
+
+/* ═══════════════════════════════════════════════
+   INFO PAGES — FAQ accordion + contact form
+═══════════════════════════════════════════════ */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  if (!item) return;
+  item.classList.toggle('open');
+}
+
+// WhatsApp number — edit this to the real store number (international format, no +)
+const SWAY_WHATSAPP = '233000000000';
+const SWAY_EMAIL = 'hello@sway.store';
+
+function submitContact() {
+  const name = (document.getElementById('contact-name')||{}).value || '';
+  const email = (document.getElementById('contact-email-input')||{}).value || '';
+  const msg = (document.getElementById('contact-msg')||{}).value || '';
+  if (!name.trim() || !msg.trim()) { showToast('Please add your name and message'); return; }
+  // Opens the user's mail app with the message prefilled
+  const subject = encodeURIComponent('SWAY enquiry from ' + name);
+  const body = encodeURIComponent(msg + '\n\nFrom: ' + name + (email ? ' (' + email + ')' : ''));
+  window.location.href = `mailto:${SWAY_EMAIL}?subject=${subject}&body=${body}`;
+  showToast('Opening your mail app...');
+}
+
+// Wire the contact page WhatsApp + email links once the DOM is ready
+function initContactLinks() {
+  const wa = document.getElementById('contact-whatsapp');
+  if (wa) wa.href = 'https://wa.me/' + SWAY_WHATSAPP;
+  const em = document.getElementById('contact-email');
+  if (em) em.href = 'mailto:' + SWAY_EMAIL;
+}

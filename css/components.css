@@ -130,7 +130,7 @@
   max-width: 640px;
   margin-bottom: 32px;
 }
-.search-tag-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #ccc; }
+.search-tag-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #888; }
 .search-tag {
   background: none;
   border: 1px solid var(--border);
@@ -222,9 +222,9 @@
 .cart-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .cart-thumb-ph { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 10px; letter-spacing: .14em; opacity: .25; }
 .ci-info { flex: 1; min-width: 0; }
-.ci-cat { font-size: 10px; color: #bbb; text-transform: uppercase; letter-spacing: .06em; }
+.ci-cat { font-size: 10px; color: #777; text-transform: uppercase; letter-spacing: .06em; }
 .ci-name { font-size: 13px; font-weight: 500; margin: 3px 0 2px; }
-.ci-meta { font-size: 11px; color: #bbb; margin-bottom: 10px; }
+.ci-meta { font-size: 11px; color: #666; margin-bottom: 10px; }
 .ci-bottom { display: flex; align-items: center; justify-content: space-between; }
 .qty-ctrl { display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--r); }
 .qty-ctrl button { width: 30px; height: 30px; font-size: 18px; color: var(--black); transition: background .15s; }
@@ -409,7 +409,7 @@
 .pdp-eyebrow { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
 .pdp-price-sub { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: none; }
 .pdp-stock { font-size: 11px; color: var(--pink); font-weight: 600; margin-bottom: 6px; min-height: 16px; }
-.pdp-desc { font-size: 14px; color: var(--mid); line-height: 1.85; margin: 16px 0 26px; padding-bottom: 24px; border-bottom: 1px solid var(--border); word-break: break-word; }
+.pdp-desc { font-size: 16px; color: var(--mid); line-height: 1.85; margin: 16px 0 26px; padding-bottom: 24px; border-bottom: 1px solid var(--border); word-break: break-word; }
 
 /* Field label */
 .field-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
@@ -597,9 +597,9 @@
 .sri-img { width:48px;height:64px;background:#f5f5f5;flex-shrink:0;overflow:hidden;border-radius:2px }
 .sri-img img { width:100%;height:100%;object-fit:cover;object-position:center top }
 .sri-info .sri-name { font-size:13px;font-weight:500;margin-bottom:2px }
-.sri-info .sri-meta { font-size:10px;color:#aaa;letter-spacing:.06em;text-transform:uppercase }
+.sri-info .sri-meta { font-size:10px;color:#777;letter-spacing:.06em;text-transform:uppercase }
 .sri-price { margin-left:auto;font-size:13px;font-weight:600;white-space:nowrap }
-.search-empty { font-size:14px;color:#aaa;text-align:center;padding:40px 0 }
+.search-empty { font-size:14px;color:#777;text-align:center;padding:40px 0 }
 .search-close { position:absolute;top:24px;right:24px;background:none;border:none;cursor:pointer;font-size:28px;color:#888;line-height:1 }
 
 /* Currency modal */
@@ -609,7 +609,7 @@
 @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 .currency-modal-head { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px }
 .currency-modal h3 { font-size:16px;font-weight:500 }
-.currency-modal p { font-size:12px;color:#aaa;margin-bottom:20px }
+.currency-modal p { font-size:12px;color:#666;margin-bottom:20px }
 .currency-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px }
 .curr-opt { border:1.5px solid #e0e0e0;background:#fff;padding:12px 16px;cursor:pointer;font-size:13px;text-align:left;transition:all .15s;border-radius:2px;display:flex;align-items:center;gap:10px;font-family:var(--font-body) }
 .curr-opt:hover { border-color:#0a0a0a }
@@ -629,7 +629,7 @@
 .sg-table th { text-align:left;padding:10px 12px;background:#f8f8f8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:#555 }
 .sg-table td { padding:10px 12px;border-bottom:1px solid #f0f0f0 }
 .sg-table tr:last-child td { border-bottom:none }
-.sg-note { font-size:12px;color:#aaa;margin-top:16px;line-height:1.6 }
+.sg-note { font-size:12px;color:#666;margin-top:16px;line-height:1.6 }
 .modal-close-btn { float:right;background:none;border:none;cursor:pointer;font-size:22px;color:#888;line-height:1;margin-top:-4px }
 
 /* Wishlist page */

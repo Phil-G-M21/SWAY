@@ -8,16 +8,24 @@ let wishlist = new Set(JSON.parse(localStorage.getItem('sway-wish') || '[]'));
 // product-data update) and re-link each item to the current product object so
 // prices, images and colors are always fresh. Prevents "badge shows 1 but cart
 // is empty" when old saved data references IDs that changed.
+const CART_VERSION = 'v4-spark-fix';   // bump this whenever product IDs change
 function sanitizeCart() {
+  // If the saved cart was built against an older product set, wipe it clean once.
+  const savedVer = localStorage.getItem('sway-cart-ver');
+  if (savedVer !== CART_VERSION) {
+    cart = [];
+    localStorage.setItem('sway-cart', '[]');
+    localStorage.setItem('sway-cart-ver', CART_VERSION);
+    return;
+  }
   if (!Array.isArray(cart)) { cart = []; return; }
-  cart = cart.filter(i => i && i.product && typeof i.product.id === 'number')
-             .map(i => {
-               const fresh = (typeof SWAY_PRODUCTS !== 'undefined')
-                 ? SWAY_PRODUCTS.find(p => p.id === i.product.id) : null;
-               if (!fresh) return null;              // product gone -> drop
-               return { key: i.key, product: fresh, size: i.size, qty: i.qty };
-             })
-             .filter(Boolean);
+  // Products loaded? Re-link items to fresh product objects; drop dead ids.
+  if (typeof SWAY_PRODUCTS === 'undefined' || !SWAY_PRODUCTS.length) return;
+  cart = cart.map(i => {
+    if (!i || !i.product || typeof i.product.id !== 'number') return null;
+    const fresh = SWAY_PRODUCTS.find(p => p.id === i.product.id);
+    return fresh ? { key: i.key, product: fresh, size: i.size, qty: i.qty } : null;
+  }).filter(Boolean);
   saveCart();
 }
 let promoApplied = false, promoRate = 0;

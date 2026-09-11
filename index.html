@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="css/base.css?v=2">
 <link rel="stylesheet" href="css/layout.css?v=2">
 <link rel="stylesheet" href="css/components.css?v=2">
+<!-- Supabase (backend: database, storage, auth) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 </head>
 <body>
 
@@ -80,11 +83,15 @@
     <button onclick="openWishlist();toggleMenu()">Wishlist</button>
     <button onclick="openSizeGuide();toggleMenu()">Size Guide</button>
     <button onclick="openSearch();toggleMenu()">Search</button>
+    <button onclick="showSection('shipping');toggleMenu()">Shipping</button>
+    <button onclick="showSection('returns');toggleMenu()">Returns</button>
+    <button onclick="showSection('faq');toggleMenu()">FAQ</button>
+    <button onclick="showSection('contact');toggleMenu()">Contact</button>
     <button onclick="openCurrencyModal();toggleMenu()"><span id="mob-curr-code">GHS</span> &middot; Change Currency</button>
   </div>
   <div class="mob-menu-foot">
-    <a href="#">Instagram</a>
-    <a href="#">TikTok</a>
+    <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
   </div>
 </div>
 
@@ -445,36 +452,51 @@
     <div class="account-page-head">
       <h1 class="shop-page-title">Account</h1>
     </div>
-    <div class="account-page-grid">
-      <div class="account-auth-card">
-        <h2>Sign In</h2>
-        <p class="account-auth-sub">Access your orders, wishlist, and saved details.</p>
-        <div class="account-form">
-          <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
-          <div class="form-field"><label>Password</label><input type="password" id="signin-pass" placeholder="••••••••"></div>
-          <button class="account-btn-primary" onclick="showToast('Sign in coming soon')">Sign In</button>
-          <button class="account-btn-link" onclick="showToast('Password reset coming soon')">Forgot password?</button>
+
+    <!-- LOGGED OUT: sign in / create account -->
+    <div id="account-logged-out">
+      <div class="account-page-grid">
+        <div class="account-auth-card">
+          <h2>Sign In</h2>
+          <p class="account-auth-sub">Access your wishlist and saved details.</p>
+          <div class="account-form">
+            <div class="form-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
+            <div class="form-field"><label>Password</label><input type="password" id="signin-pass" placeholder="Your password"></div>
+            <button class="account-btn-primary" onclick="doSignIn()">Sign In</button>
+          </div>
         </div>
-      </div>
-      <div class="account-auth-card">
-        <h2>Create Account</h2>
-        <p class="account-auth-sub">Join SWAY for first access to drops and faster checkout.</p>
-        <div class="account-form">
-          <div class="form-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Kofi Mensah"></div>
-          <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
-          <div class="form-field"><label>Password</label><input type="password" id="signup-pass" placeholder="Choose a password"></div>
-          <button class="account-btn-primary" onclick="showToast('Account creation coming soon')">Create Account</button>
+        <div class="account-auth-card">
+          <h2>Create Account</h2>
+          <p class="account-auth-sub">Join SWAY for first access to drops and faster checkout.</p>
+          <div class="account-form">
+            <div class="form-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Kofi Mensah"></div>
+            <div class="form-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
+            <div class="form-field"><label>Password</label><input type="password" id="signup-pass" placeholder="Choose a password"></div>
+            <button class="account-btn-primary" onclick="doSignUp()">Create Account</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- LOGGED IN: dashboard -->
+    <div id="account-logged-in" style="display:none">
+      <div class="account-dash">
+        <div class="account-dash-head">
+          <h2 id="account-hello">Hey</h2>
+          <span id="account-email-display" class="account-email"></span>
+          <button class="account-btn-link" onclick="doSignOut()">Sign out</button>
+        </div>
+      </div>
+    </div>
+
     <div class="account-links-row">
       <button class="account-quick-link" onclick="openWishlist()">
         <span class="aql-title">Wishlist</span>
         <span class="aql-sub">Your saved items</span>
       </button>
-      <button class="account-quick-link" onclick="showToast('Order history coming soon')">
-        <span class="aql-title">Order History</span>
-        <span class="aql-sub">Track your orders</span>
+      <button class="account-quick-link" onclick="showSection('faq')">
+        <span class="aql-title">Help &amp; FAQ</span>
+        <span class="aql-sub">Common questions</span>
       </button>
       <button class="account-quick-link" onclick="openSizeGuide()">
         <span class="aql-title">Size Guide</span>
@@ -488,6 +510,108 @@
   </div>
 </section>
 
+
+<!-- ══ INFO PAGES ════════════════════════════════ -->
+<section id="page-shipping" class="site-section" style="display:none">
+  <div class="info-page">
+    <button class="info-back" onclick="showSection('home')">← Back</button>
+    <h1 class="info-title">Shipping</h1>
+    <div class="info-body">
+      <h2>Where we ship</h2>
+      <p>SWAY ships from Accra to everywhere in Ghana, across Africa, and worldwide. Every order is packed and sent from our base in Ghana.</p>
+      <h2>Delivery times</h2>
+      <p>Accra: 1 to 2 business days. Kumasi and other regions: 2 to 4 business days. Rest of Africa: 5 to 10 business days. International: 7 to 14 business days. Times are estimates and can vary during drops and holidays.</p>
+      <h2>Shipping cost</h2>
+      <p>Standard shipping within Ghana is free on orders over GHS 600. Below that, a flat rate is added at checkout. Express delivery is available in Accra and Kumasi for an added fee.</p>
+      <h2>Tracking</h2>
+      <p>Once your order ships you get a confirmation with tracking where available. For anything urgent, reach us on WhatsApp and we will chase it down.</p>
+    </div>
+  </div>
+</section>
+
+<section id="page-returns" class="site-section" style="display:none">
+  <div class="info-page">
+    <button class="info-back" onclick="showSection('home')">← Back</button>
+    <h1 class="info-title">Returns &amp; Exchanges</h1>
+    <div class="info-body">
+      <h2>Our promise</h2>
+      <p>We want you in the right fit. If something is not right, you have 14 days from delivery to return or exchange it.</p>
+      <h2>Condition</h2>
+      <p>Items must be unworn, unwashed, and in original condition with any tags still attached. Tees that have been worn or washed cannot be returned for hygiene reasons.</p>
+      <h2>How to start a return</h2>
+      <p>Message us on WhatsApp or email with your order number and what you would like to do. We will send you the return steps. Return shipping within Ghana is on us for exchanges; for refunds the return cost is covered by the customer.</p>
+      <h2>Refunds</h2>
+      <p>Once we receive and check your return, refunds are processed to your original payment method within 5 to 7 business days. MoMo refunds are usually faster.</p>
+      <h2>Wrong or faulty items</h2>
+      <p>If you received the wrong item or a fault, tell us within 48 hours of delivery and we will make it right at no cost to you.</p>
+    </div>
+  </div>
+</section>
+
+<section id="page-faq" class="site-section" style="display:none">
+  <div class="info-page">
+    <button class="info-back" onclick="showSection('home')">← Back</button>
+    <h1 class="info-title">FAQ</h1>
+    <div class="info-body" id="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What sizes do you offer?<span class="faq-plus">+</span></button>
+        <div class="faq-a">Every tee comes in S, M, L, XL, and XXL. Check the Size Guide for exact chest measurements. Our fit is cropped for women and waist-length for men.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How do the tees fit?<span class="faq-plus">+</span></button>
+        <div class="faq-a">Women's tees sit cropped above the hip. Men's tees are a clean waist-length fit. If you want it oversized, size up one.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">What payment methods can I use?<span class="faq-plus">+</span></button>
+        <div class="faq-a">Mobile Money (MTN, Vodafone, AirtelTigo) and card. All payments are processed securely in Ghana Cedis.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Can I change or cancel my order?<span class="faq-plus">+</span></button>
+        <div class="faq-a">If your order has not shipped yet, message us fast on WhatsApp and we will try to change or cancel it. Once it ships it is on its way.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">Do you restock sold-out designs?<span class="faq-plus">+</span></button>
+        <div class="faq-a">Some designs return, some are limited and gone for good. Follow us and join the newsletter to hear about restocks and new drops first.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">How should I wash my tee?<span class="faq-plus">+</span></button>
+        <div class="faq-a">Machine wash cold, inside out, with like colors. Hang to dry or tumble low. Do not iron directly on the print.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="page-contact" class="site-section" style="display:none">
+  <div class="info-page">
+    <button class="info-back" onclick="showSection('home')">← Back</button>
+    <h1 class="info-title">Contact</h1>
+    <div class="info-body">
+      <p>Questions about an order, sizing, or a drop? We reply fast.</p>
+      <div class="contact-methods">
+        <a class="contact-method" id="contact-whatsapp" href="#" target="_blank" rel="noopener">
+          <span class="contact-method-label">WhatsApp</span>
+          <span class="contact-method-val">Chat with us</span>
+        </a>
+        <a class="contact-method" id="contact-email" href="#">
+          <span class="contact-method-label">Email</span>
+          <span class="contact-method-val">hello@sway.store</span>
+        </a>
+        <div class="contact-method">
+          <span class="contact-method-label">Based in</span>
+          <span class="contact-method-val">Accra, Ghana</span>
+        </div>
+      </div>
+      <div class="contact-form">
+        <h2>Send a message</h2>
+        <div class="form-field"><label>Name</label><input type="text" id="contact-name" placeholder="Your name"></div>
+        <div class="form-field"><label>Email</label><input type="email" id="contact-email-input" placeholder="you@email.com"></div>
+        <div class="form-field"><label>Message</label><textarea id="contact-msg" rows="4" placeholder="How can we help?"></textarea></div>
+        <button class="account-btn-primary" onclick="submitContact()">Send Message</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main>
 
 <!-- ══ FOOTER (shows on home + about) ════════════ -->
@@ -496,27 +620,27 @@
     <span class="footer-logo"><img src="images/logo-white.png?v=2" alt="SWAY" class="footer-logo-img"></span>
     <p class="footer-tagline">Premium streetwear. Made in Ghana.</p>
     <div class="footer-social" style="margin-top:16px">
-      <a href="#">Instagram</a><a href="#">TikTok</a>
+      <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a><a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
     </div>
   </div>
   <div class="footer-col">
     <h4>Shop</h4>
     <button onclick="showSection('men')">Men</button>
     <button onclick="showSection('women')">Women</button>
-    <button onclick="showSection('men')">New Arrivals</button>
+    <button onclick="showSection('about')">About</button>
   </div>
   <div class="footer-col">
     <h4>Info</h4>
-    <button onclick="showSection('about')">About</button>
+    <button onclick="showSection('shipping')">Shipping</button>
+    <button onclick="showSection('returns')">Returns</button>
+    <button onclick="showSection('faq')">FAQ</button>
     <button onclick="openSizeGuide()">Size Guide</button>
-    <a href="#">Shipping</a>
-    <a href="#">Returns</a>
   </div>
   <div class="footer-col">
     <h4>Contact</h4>
+    <button onclick="showSection('contact')">Get in touch</button>
     <a href="mailto:hello@sway.store">hello@sway.store</a>
-    <a href="#">WhatsApp</a>
-    <a href="#">Accra, Ghana</a>
+    <button onclick="showSection('contact')">Accra, Ghana</button>
   </div>
 </footer>
 <div class="footer-bottom" id="footer-bottom">
@@ -549,7 +673,7 @@
         <div class="pdp-price-secondary" id="pdp-price-secondary"></div>
         <div class="pdp-stock" id="pdp-stock"></div>
         <p class="pdp-desc" id="pdp-desc"></p>
-        <div class="pdp-label">Color: <span id="pdp-color-label" style="font-weight:400;text-transform:none;letter-spacing:0;color:#888"></span></div>
+        <div class="pdp-label">Color: <span id="pdp-color-label" style="font-weight:400;text-transform:none;letter-spacing:0;color:#555"></span></div>
         <div class="pdp-colors" id="pdp-colors"></div>
         <div class="pdp-size-row">
           <div class="pdp-label" style="margin-bottom:0">Size</div>
@@ -716,7 +840,7 @@
           <div class="payment-fields" id="pay-momo">
             <div class="form-field"><label>Network</label><select id="momo-network"><option>MTN MoMo</option><option>Vodafone Cash</option><option>AirtelTigo Money</option></select></div>
             <div class="form-field"><label>MoMo Number</label><input id="momo-number" type="tel" placeholder="+233 24 000 0000"></div>
-            <p style="font-size:12px;color:#aaa;margin-top:8px">You will receive a prompt on your phone to approve the payment.</p>
+            <p style="font-size:12px;color:#666;margin-top:8px">You will receive a prompt on your phone to approve the payment.</p>
           </div>
           <div class="payment-fields" id="pay-card" style="display:none">
             <div class="form-field"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
@@ -725,7 +849,7 @@
               <div class="form-field"><label>CVV</label><input type="text" placeholder="•••" maxlength="4"></div>
             </div>
             <div class="form-field"><label>Name on Card</label><input type="text" placeholder="KOFI MENSAH"></div>
-            <p style="font-size:11px;color:#aaa;margin-top:6px">Secured via Paystack. Card details never stored.</p>
+            <p style="font-size:11px;color:#666;margin-top:6px">Secured via Paystack. Card details never stored.</p>
           </div>
           <div style="display:flex;gap:10px;margin-top:8px">
             <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
@@ -762,19 +886,21 @@
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
 <script src="js/products.js"></script>
+<script src="js/products-loader.js"></script>
 <script src="js/currency.js"></script>
 <script src="js/cart.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/pdp.js"></script>
 <script src="js/pages.js"></script>
 <script src="js/checkout.js"></script>
+<script src="js/accounts.js"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }
 function closeAccount() { document.getElementById('account-modal-bg').classList.remove('open'); }
 
 /* ── Site-level section navigation ── */
-const SECTIONS = ['home','men','women','about','lookbook','account'];
+const SECTIONS = ['home','men','women','about','lookbook','account','shipping','returns','faq','contact'];
 let activeSection = 'home';
 let menSeries = 'all', womenSeries = 'all';
 let menSort = 'default', womenSort = 'default';
@@ -790,7 +916,7 @@ function showSection(name, fromHistory) {
   // footer only on home + about + account
   const footer = document.getElementById('main-footer');
   const footerBottom = document.getElementById('footer-bottom');
-  const showFooter = (name === 'home' || name === 'about' || name === 'account' || name === 'lookbook');
+  const showFooter = !['men','women'].includes(name);
   if (footer) footer.style.display = showFooter ? '' : 'none';
   if (footerBottom) footerBottom.style.display = showFooter ? '' : 'none';
 
@@ -805,6 +931,8 @@ function showSection(name, fromHistory) {
   if (name === 'women') renderShopPage('women');
   if (name === 'home')  { renderHomePage(); if (typeof initReveal === 'function') setTimeout(initReveal, 50); }
   if (name === 'lookbook' && typeof initLookbook === 'function') initLookbook();
+  if (name === 'account' && typeof renderAccountState === 'function') renderAccountState();
+  if (name === 'contact' && typeof initContactLinks === 'function') initContactLinks();
 
   // hero gender when going to men/women
   if (name === 'men' || name === 'women') {
@@ -927,23 +1055,40 @@ function submitNLAbout() {
 
 /* ── Boot ── */
 detectCurrency();
-if (typeof sanitizeCart === 'function') sanitizeCart();
-updateCartBadge();
-updateWishBadge();
-updateMobileCart();
-renderHomePage();
 
 // Restore section from URL hash if present, else home
-(function bootSection() {
+function bootSection() {
   const hash = (window.location.hash || '').replace('#', '');
   const start = SECTIONS.includes(hash) ? hash : 'home';
   history.replaceState({ section: start }, '', '#' + start);
   showSection(start, true);
-})();
+}
 
-initHero();
-if (typeof initGenderPanels === 'function') initGenderPanels();
-if (typeof initReveal === 'function') initReveal();
+function renderEverything() {
+  if (typeof sanitizeCart === 'function') sanitizeCart();
+  updateCartBadge();
+  updateWishBadge();
+  updateMobileCart();
+  renderHomePage();
+  // re-render whichever shop page is active so DB products show
+  if (activeSection === 'men')   renderShopPage('men');
+  if (activeSection === 'women') renderShopPage('women');
+  bootSection();
+  initHero();
+  if (typeof initGenderPanels === 'function') initGenderPanels();
+  if (typeof initReveal === 'function') initReveal();
+  if (typeof initContactLinks === 'function') initContactLinks();
+  if (typeof renderAccountState === 'function') renderAccountState();
+}
+
+// Load products from the cloud first, then render. If it fails, the
+// hardcoded fallback in products.js is used so the store still works.
+(async function boot() {
+  if (typeof loadProductsFromDB === 'function') {
+    try { await loadProductsFromDB(); } catch (e) { console.warn(e); }
+  }
+  renderEverything();
+})();
 </script>
 </body>
 </html>
