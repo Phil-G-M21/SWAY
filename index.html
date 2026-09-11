@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=6">
-<link rel="stylesheet" href="css/layout.css?v=6">
-<link rel="stylesheet" href="css/components.css?v=6">
+<link rel="stylesheet" href="css/base.css?v=7">
+<link rel="stylesheet" href="css/layout.css?v=7">
+<link rel="stylesheet" href="css/components.css?v=7">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=6"></script>
+<script src="js/supabase-config.js?v=7"></script>
 </head>
 <body>
 
@@ -486,6 +486,48 @@
           <span id="account-email-display" class="account-email"></span>
           <button class="account-btn-link" onclick="doSignOut()">Sign out</button>
         </div>
+
+        <!-- Tabs -->
+        <div class="acct-tabs">
+          <button class="acct-tab active" onclick="acctTab('orders',this)">Orders</button>
+          <button class="acct-tab" onclick="acctTab('addresses',this)">Addresses</button>
+          <button class="acct-tab" onclick="acctTab('profile',this)">Profile</button>
+        </div>
+
+        <!-- Orders -->
+        <div class="acct-panel" id="panel-orders">
+          <div id="orders-list"><p class="acct-empty">Loading orders...</p></div>
+        </div>
+
+        <!-- Addresses -->
+        <div class="acct-panel" id="panel-addresses" style="display:none">
+          <div id="addresses-list"></div>
+          <div class="addr-form">
+            <h3>Add an address</h3>
+            <div class="af-grid">
+              <input id="addr-label" placeholder="Label (Home, Work)">
+              <input id="addr-name" placeholder="Full name">
+              <input id="addr-phone" placeholder="Phone">
+              <input id="addr-line1" placeholder="Address">
+              <input id="addr-city" placeholder="City">
+              <input id="addr-region" placeholder="Region">
+            </div>
+            <button class="account-btn-primary" onclick="addAddress()">Save Address</button>
+          </div>
+        </div>
+
+        <!-- Profile -->
+        <div class="acct-panel" id="panel-profile" style="display:none">
+          <div class="prof-form">
+            <div class="form-field"><label>Full Name</label><input id="prof-name" placeholder="Your name"></div>
+            <div class="form-field"><label>Phone</label><input id="prof-phone" placeholder="Phone number"></div>
+            <button class="account-btn-primary" onclick="saveProfile()">Save Profile</button>
+          </div>
+          <div class="prof-form" style="margin-top:24px;border-top:1px solid var(--border);padding-top:24px">
+            <div class="form-field"><label>New Password</label><input id="prof-pass" type="password" placeholder="At least 6 characters"></div>
+            <button class="account-btn-primary" onclick="changePassword()">Change Password</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -885,16 +927,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=6"></script>
-<script src="js/images.js?v=6"></script>
-<script src="js/products-loader.js?v=6"></script>
-<script src="js/currency.js?v=6"></script>
-<script src="js/cart.js?v=6"></script>
-<script src="js/ui.js?v=6"></script>
-<script src="js/pdp.js?v=6"></script>
-<script src="js/pages.js?v=6"></script>
-<script src="js/checkout.js?v=6"></script>
-<script src="js/accounts.js?v=6"></script>
+<script src="js/products.js?v=7"></script>
+<script src="js/images.js?v=7"></script>
+<script src="js/products-loader.js?v=7"></script>
+<script src="js/currency.js?v=7"></script>
+<script src="js/cart.js?v=7"></script>
+<script src="js/ui.js?v=7"></script>
+<script src="js/pdp.js?v=7"></script>
+<script src="js/pages.js?v=7"></script>
+<script src="js/checkout.js?v=7"></script>
+<script src="js/accounts.js?v=7"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }

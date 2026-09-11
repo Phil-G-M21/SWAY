@@ -601,3 +601,31 @@ a.contact-method:hover { border-color: #0a0a0a; }
 .account-dash-head h2 { font-family: var(--font-display); font-size: 32px; letter-spacing: .03em; }
 .account-email { font-size: 14px; color: #4a4a4a; }
 .account-dash-head .account-btn-link { margin-top: 12px; }
+
+/* ═══════════════════════════════════════════════
+   CUSTOMER ACCOUNT DASHBOARD
+═══════════════════════════════════════════════ */
+.acct-tabs { display:flex; gap:4px; margin:24px 0 20px; border-bottom:1px solid var(--border); }
+.acct-tab { background:none; border:none; padding:12px 18px; font-size:13px; font-weight:600; letter-spacing:.04em; color:#888; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+.acct-tab.active { color:#0a0a0a; border-bottom-color:#0a0a0a; }
+.acct-panel { min-height:120px; }
+.acct-empty { color:#888; font-size:14px; padding:20px 0; }
+
+.order-card { border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; }
+.order-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.order-ref { font-weight:600; font-size:14px; }
+.order-status { font-size:10px; text-transform:uppercase; letter-spacing:.06em; background:#1a7f4b; color:#fff; padding:3px 10px; border-radius:20px; }
+.order-items { font-size:13px; color:#555; line-height:1.6; margin-bottom:10px; }
+.order-foot { display:flex; justify-content:space-between; font-size:13px; color:#888; }
+.order-total { font-weight:600; color:#0a0a0a; }
+
+.addr-card { border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; position:relative; }
+.addr-label { font-weight:600; font-size:13px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:6px; }
+.addr-body { font-size:13px; color:#555; line-height:1.7; }
+.addr-del { position:absolute; top:14px; right:14px; background:none; border:none; color:#c0392b; font-size:11px; cursor:pointer; text-transform:uppercase; letter-spacing:.04em; }
+.addr-form { margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+.addr-form h3 { font-size:14px; margin-bottom:14px; letter-spacing:.02em; }
+.af-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.af-grid input { padding:11px 12px; border:1.5px solid var(--border); border-radius:6px; font-size:14px; }
+.prof-form .form-field { margin-bottom:14px; }
+@media (max-width:600px){ .af-grid { grid-template-columns:1fr; } }

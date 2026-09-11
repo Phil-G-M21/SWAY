@@ -184,7 +184,27 @@ function demoPayment(email) {
 }
 
 /* Shared success screen */
+async function saveOrderToDB(orderNum, email){
+  if (typeof sway_db === 'undefined') return;
+  try {
+    const { data: u } = await sway_db.auth.getUser();
+    const items = cart.map(i => ({ name:i.product.name, color:i.product.color, size:i.size, qty:i.qty, price:i.product.price }));
+    await sway_db.from('orders').insert({
+      user_id: u?.user?.id || null,
+      order_ref: orderNum,
+      items,
+      subtotal: cartSubtotal(), shipping: cartShipping(), total: cartTotal(),
+      currency: 'GHS', status: 'paid',
+      ship_name: (document.getElementById('co-name')||{}).value || '',
+      ship_phone: (document.getElementById('momo-number')||{}).value || '',
+      ship_address: (document.getElementById('co-address')||{}).value || ''
+    });
+  } catch(e){ console.warn('Order save skipped:', e); }
+}
+
 function showOrderConfirmed(orderNum, email) {
+  // Save the order to the customer's account (after payment confirmed)
+  saveOrderToDB(orderNum, email);
   const total = cartTotal();
   setText('oc-sub', 'Confirmation sent to ' + email);
   document.getElementById('oc-details').innerHTML = `
