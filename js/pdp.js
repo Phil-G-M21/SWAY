@@ -79,7 +79,10 @@ function openPDP(id) {
 function renderPDPGallery(p) {
   const wrap  = document.getElementById('pdp-main-wrap');
   const bg    = p.color === 'Black' ? '#0f0f0f' : (p.color === 'Pink' || p.color === 'Orange') ? '#f5e0e6' : '#f2f2f2';
-  const allImgs = (p.imgs && p.imgs.length) ? p.imgs : [p.img].filter(Boolean);
+  let allImgs = (p.imgs && p.imgs.length) ? p.imgs.slice() : (p.img ? [p.img] : []);
+  // Always show 3 thumbnail slots (front/back/model) for a consistent layout
+  if (allImgs.length === 0 && p.img) allImgs = [p.img];
+  while (allImgs.length > 0 && allImgs.length < 3) allImgs.push(allImgs[allImgs.length - 1]);
 
   wrap.style.background = bg;
 

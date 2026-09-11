@@ -32,10 +32,10 @@ async function loadProductsFromDB() {
       stock: row.stock ?? 10,
       isNew: row.is_new,
       isBest: row.is_best,
-      img: (typeof resolveProductImg === 'function') ? resolveProductImg(row.img) : row.img,
-      // build imgs from img base if the DB doesn't store the array
-      imgs: ((row.imgs && row.imgs.length) ? row.imgs : buildImgsFromMain(row.img))
-              .map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : u),
+img: (typeof resolveProductImg === 'function') ? resolveProductImg(row.img || expectedSlug(row) + '.jpg') : (row.img || ''),
+      // Always produce 3 image slots (front/back/model). Use stored imgs, else
+      // the stored main img, else the expected filename from the variant fields.
+      imgs: resolveImgList(row),
       desc: row.description,
       details: ['Cropped fit','Full-back graphic','SWAY wordmark chest hit','Ribbed crewneck collar']
     }));
@@ -46,10 +46,25 @@ async function loadProductsFromDB() {
   }
 }
 
-// Given a main image path like images/products/spark-women-white-orange.jpg
-// produce [main, -2, -3] so back/model images resolve the same way.
-function buildImgsFromMain(img) {
-  if (!img) return [];
-  const base = img.replace(/\.jpg$/i, '');
-  return [img, base + '-2.jpg', base + '-3.jpg'];
+// Build the expected image filename base from a product row's fields.
+// e.g. spark-women-white-pink   or   marionette-men-black
+function expectedSlug(row) {
+  let base = row.design + '-' + row.gender + '-' + (row.shirt || 'white').toLowerCase();
+  if (row.spark) base += '-' + row.spark.toLowerCase();
+  return base;
+}
+
+// Always return 3 resolved image URLs (front, back, model). Falls back to the
+// expected filename so a product with no stored image still shows 3 slots
+// (which display the uploaded photo if it exists, or the placeholder if not).
+function resolveImgList(row) {
+  let list;
+  if (row.imgs && row.imgs.length) {
+    list = row.imgs.slice(0, 3);
+  } else {
+    const base = row.img ? row.img.replace(/\.jpg$/i, '') : expectedSlug(row);
+    list = [base + '.jpg', base + '-2.jpg', base + '-3.jpg'];
+  }
+  while (list.length < 3) list.push(list[list.length - 1]);  // pad to 3
+  return list.map(u => (typeof resolveProductImg === 'function') ? resolveProductImg(u) : u);
 }
