@@ -1,90 +1,76 @@
 /**
- * SWAY — Local Accounts
- * A simple client-side account system using localStorage.
- * Not a real backend (no server), but gives real sign up / sign in /
- * session behaviour for the store. Passwords are lightly hashed so they
- * are not stored in plain text, but this is NOT bank-grade security —
- * when the backend is added later, this swaps out for real auth.
+ * SWAY — Accounts (real, via Supabase Auth)
+ * Sign up / sign in / sign out backed by Supabase. Works across devices.
  */
 
-const ACCT_KEY = 'sway-accounts';
-const SESSION_KEY = 'sway-session';
-
-function loadAccounts() {
-  try { return JSON.parse(localStorage.getItem(ACCT_KEY) || '{}'); }
-  catch (e) { return {}; }
-}
-function saveAccounts(a) { localStorage.setItem(ACCT_KEY, JSON.stringify(a)); }
-
-// Tiny non-reversible hash (djb2) — obscures the password in storage.
-function hashPass(str) {
-  let h = 5381;
-  for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
-  return String(h);
+async function currentUser() {
+  if (typeof sway_db === 'undefined') return null;
+  const { data } = await sway_db.auth.getUser();
+  return data?.user || null;
 }
 
-function currentUser() {
-  try {
-    const email = localStorage.getItem(SESSION_KEY);
-    if (!email) return null;
-    const acct = loadAccounts()[email.toLowerCase()];
-    return acct ? { email: email.toLowerCase(), name: acct.name } : null;
-  } catch (e) { return null; }
-}
-
-function doSignUp() {
+async function doSignUp() {
   const name = (document.getElementById('signup-name')||{}).value.trim();
   const email = (document.getElementById('signup-email')||{}).value.trim().toLowerCase();
   const pass = (document.getElementById('signup-pass')||{}).value;
   if (!name) { showToast('Please enter your name'); return; }
   if (!email || !email.includes('@')) { showToast('Please enter a valid email'); return; }
-  if (!pass || pass.length < 4) { showToast('Password must be at least 4 characters'); return; }
+  if (!pass || pass.length < 6) { showToast('Password must be at least 6 characters'); return; }
 
-  const accounts = loadAccounts();
-  if (accounts[email]) { showToast('An account with that email already exists'); return; }
-  accounts[email] = { name: name, pass: hashPass(pass) };
-  saveAccounts(accounts);
-  localStorage.setItem(SESSION_KEY, email);
-  showToast('Welcome to SWAY, ' + name.split(' ')[0]);
+  const { data, error } = await sway_db.auth.signUp({
+    email, password: pass,
+    options: { data: { full_name: name } }
+  });
+  if (error) { showToast(error.message); return; }
+  // Supabase may require email confirmation depending on project settings
+  if (data.user && !data.session) {
+    showToast('Check your email to confirm your account');
+  } else {
+    showToast('Welcome to SWAY, ' + name.split(' ')[0]);
+  }
   renderAccountState();
 }
 
-function doSignIn() {
+async function doSignIn() {
   const email = (document.getElementById('signin-email')||{}).value.trim().toLowerCase();
   const pass = (document.getElementById('signin-pass')||{}).value;
   if (!email || !pass) { showToast('Enter your email and password'); return; }
-  const accounts = loadAccounts();
-  const acct = accounts[email];
-  if (!acct || acct.pass !== hashPass(pass)) { showToast('Wrong email or password'); return; }
-  localStorage.setItem(SESSION_KEY, email);
-  showToast('Welcome back, ' + acct.name.split(' ')[0]);
+  const { data, error } = await sway_db.auth.signInWithPassword({ email, password: pass });
+  if (error) { showToast('Wrong email or password'); return; }
+  const nm = data.user?.user_metadata?.full_name || email.split('@')[0];
+  showToast('Welcome back, ' + nm.split(' ')[0]);
   renderAccountState();
 }
 
-function doSignOut() {
-  localStorage.removeItem(SESSION_KEY);
+async function doSignOut() {
+  await sway_db.auth.signOut();
   showToast('Signed out');
   renderAccountState();
 }
 
-// Swap the account page between logged-out (forms) and logged-in (dashboard)
-function renderAccountState() {
-  const user = currentUser();
+async function renderAccountState() {
+  const user = await currentUser();
   const loggedOut = document.getElementById('account-logged-out');
   const loggedIn = document.getElementById('account-logged-in');
   if (!loggedOut || !loggedIn) return;
   if (user) {
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'block';
+    const nm = user.user_metadata?.full_name || user.email.split('@')[0];
     const hi = document.getElementById('account-hello');
-    if (hi) hi.textContent = 'Hey, ' + user.name.split(' ')[0];
+    if (hi) hi.textContent = 'Hey, ' + nm.split(' ')[0];
     const em = document.getElementById('account-email-display');
     if (em) em.textContent = user.email;
   } else {
     loggedOut.style.display = 'block';
     loggedIn.style.display = 'none';
   }
-  // reflect in nav if there's an indicator
-  const navAcct = document.getElementById('nav-account-label');
-  if (navAcct) navAcct.textContent = user ? user.name.split(' ')[0] : 'Account';
+}
+
+// Is the logged-in user an admin? (checks the admins table)
+async function isCurrentUserAdmin() {
+  const user = await currentUser();
+  if (!user) return false;
+  const { data } = await sway_db.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
+  return !!data;
 }
