@@ -429,7 +429,7 @@ function submitContact() { submitContactWhatsApp(); }
 // Wire the contact page WhatsApp + email links once the DOM is ready
 function initContactLinks() {
   const wa = document.getElementById('contact-whatsapp');
-  if (wa) wa.href = 'https://wa.me/' + SWAY_WHATSAPP;
+  if (wa) wa.href = 'https://wa.me/' + SWAY_WHATSAPP + '?text=' + encodeURIComponent("Hi SWAY, I'd like to make an enquiry.");
   const em = document.getElementById('contact-email');
   if (em) em.href = 'mailto:' + SWAY_EMAIL;
 }

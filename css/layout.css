@@ -154,7 +154,7 @@ footer { border-top: 1px solid var(--border); padding: 44px 24px 28px; display: 
 .social-ic:hover svg circle[fill], .social-ic:hover svg path { fill: #fff; }
 .mob-menu-foot { display: flex; gap: 14px; align-items: center; }
 .mob-menu-foot .social-ic { color: #fff; }
-.footer-bottom { border-top: 1px solid var(--border); padding: 18px 24px; font-size: 11px; color: #bbb; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; align-items: center; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 18px 24px; font-size: 12px; color: #555; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pay-chips { display: flex; gap: 6px; }
 .pay-chip { font-size: 10px; background: #f5f5f5; padding: 3px 8px; border-radius: 2px; color: #aaa; letter-spacing: .04em; }
 
