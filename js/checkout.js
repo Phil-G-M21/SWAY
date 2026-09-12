@@ -28,6 +28,73 @@ const PAYSTACK_ENABLED    = true;          // live
 
 let coCurrentStep = 1, activePayTab = 'momo';
 
+// Gate checkout: require login. Guests see the sign in/create screen first.
+async function prefillCheckoutUser(){
+  const gate = document.getElementById('checkout-auth-gate');
+  const steps = document.getElementById('checkout-steps-wrap');
+  const stepsNav = document.querySelector('.checkout-steps');
+  if (typeof currentUser !== 'function') return;
+  const user = await currentUser();
+  if (user) {
+    // logged in — show checkout, prefill details
+    if (gate) gate.style.display = 'none';
+    if (steps) steps.style.display = 'block';
+    const nm = user.user_metadata?.full_name || '';
+    const nameEl = document.getElementById('co-name');
+    const emailEl = document.getElementById('co-email');
+    if (nameEl && !nameEl.value) nameEl.value = nm;
+    if (emailEl && !emailEl.value) emailEl.value = user.email || '';
+    const hello = document.getElementById('co-account-hello');
+    if (hello) { hello.textContent = 'Signed in as ' + (nm || user.email) + '.'; hello.style.display = 'block'; }
+    const prompt = document.getElementById('co-account-prompt');
+    if (prompt) prompt.style.display = 'none';
+  } else {
+    // guest — MUST sign in/create account first
+    if (gate) gate.style.display = 'block';
+    if (steps) steps.style.display = 'none';
+  }
+}
+
+// Checkout auth gate tabs
+function coAuthTab(which){
+  document.getElementById('cat-signin').classList.toggle('active', which==='signin');
+  document.getElementById('cat-signup').classList.toggle('active', which==='signup');
+  document.getElementById('co-auth-signin').style.display = which==='signin'?'block':'none';
+  document.getElementById('co-auth-signup').style.display = which==='signup'?'block':'none';
+}
+
+// Sign in from within checkout, then reveal the checkout steps
+async function coDoSignIn(){
+  const email = (document.getElementById('ca-signin-email')||{}).value.trim().toLowerCase();
+  const pass = (document.getElementById('ca-signin-pass')||{}).value;
+  if(!email || !pass){ showToast('Enter your email and password'); return; }
+  const { error } = await sway_db.auth.signInWithPassword({ email, password: pass });
+  if(error){ showToast('Wrong email or password'); return; }
+  showToast('Signed in');
+  prefillCheckoutUser();
+  if (typeof renderAccountState === 'function') renderAccountState();
+}
+
+// Create account from within checkout, then reveal the checkout steps
+async function coDoSignUp(){
+  const name = (document.getElementById('ca-signup-name')||{}).value.trim();
+  const email = (document.getElementById('ca-signup-email')||{}).value.trim().toLowerCase();
+  const pass = (document.getElementById('ca-signup-pass')||{}).value;
+  if(!name){ showToast('Enter your name'); return; }
+  if(!email || !email.includes('@')){ showToast('Enter a valid email'); return; }
+  if(!pass || pass.length < 6){ showToast('Password must be at least 6 characters'); return; }
+  const { data, error } = await sway_db.auth.signUp({ email, password: pass, options:{ data:{ full_name:name } } });
+  if(error){ showToast(error.message); return; }
+  if (data.user && !data.session) {
+    showToast('Check your email to confirm, then sign in');
+    coAuthTab('signin');
+  } else {
+    showToast('Account created');
+    prefillCheckoutUser();
+    if (typeof renderAccountState === 'function') renderAccountState();
+  }
+}
+
 function openCheckout() {
   if (!cart.length) { showToast('Your cart is empty'); return; }
   // Close the cart VISUALLY only — do not run its history sync here, or it
@@ -43,6 +110,7 @@ function openCheckout() {
   // browser Back button unwinds cleanly: checkout -> product -> section.
   updateCheckoutSummary();
   coGoStep(1);
+  prefillCheckoutUser();
   document.getElementById('checkout-page').classList.add('open');
   document.body.style.overflow = 'hidden';
   window.scrollTo(0, 0);

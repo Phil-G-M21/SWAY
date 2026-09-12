@@ -43,12 +43,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=23">
-<link rel="stylesheet" href="css/layout.css?v=23">
-<link rel="stylesheet" href="css/components.css?v=23">
+<link rel="stylesheet" href="css/base.css?v=25">
+<link rel="stylesheet" href="css/layout.css?v=25">
+<link rel="stylesheet" href="css/components.css?v=25">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=23"></script>
+<script src="js/supabase-config.js?v=25"></script>
 <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body>
@@ -870,6 +870,28 @@
       <svg width="16" height="10" viewBox="0 0 16 10" fill="none"><path d="M15 5H1M5 1L1 5l4 4" stroke="#999" stroke-width="1.3" stroke-linecap="round"/></svg>
       Back to Cart
     </button>
+    <!-- Auth gate: shown to guests before they can check out -->
+    <div id="checkout-auth-gate" class="co-auth-gate" style="display:none">
+      <h2 class="co-auth-title">Sign in to check out</h2>
+      <p class="co-auth-sub">Create an account or sign in so you can track your order and see your history.</p>
+      <div class="co-auth-tabs">
+        <button class="co-auth-tab active" id="cat-signin" onclick="coAuthTab('signin')">Sign In</button>
+        <button class="co-auth-tab" id="cat-signup" onclick="coAuthTab('signup')">Create Account</button>
+      </div>
+      <div id="co-auth-signin">
+        <div class="form-field"><label>Email</label><input id="ca-signin-email" type="email" placeholder="you@email.com"></div>
+        <div class="form-field"><label>Password</label><div class="pass-wrap"><input id="ca-signin-pass" type="password" placeholder="Your password"><button type="button" class="pass-toggle" onclick="togglePass('ca-signin-pass',this)">Show</button></div></div>
+        <button class="place-order-btn" onclick="coDoSignIn()">Sign In &amp; Continue</button>
+      </div>
+      <div id="co-auth-signup" style="display:none">
+        <div class="form-field"><label>Full Name</label><input id="ca-signup-name" type="text" placeholder="Kofi Mensah"></div>
+        <div class="form-field"><label>Email</label><input id="ca-signup-email" type="email" placeholder="you@email.com"></div>
+        <div class="form-field"><label>Password</label><div class="pass-wrap"><input id="ca-signup-pass" type="password" placeholder="At least 6 characters"><button type="button" class="pass-toggle" onclick="togglePass('ca-signup-pass',this)">Show</button></div></div>
+        <button class="place-order-btn" onclick="coDoSignUp()">Create Account &amp; Continue</button>
+      </div>
+    </div>
+
+    <div id="checkout-steps-wrap">
     <div class="checkout-steps">
       <span class="cstep active" id="cstep1">Contact</span>
       <span style="color:#ddd;margin:0 6px">›</span>
@@ -880,6 +902,10 @@
     <div class="checkout-layout">
       <div>
         <div id="co-step1">
+          <div id="co-account-prompt" class="co-acct-prompt" style="display:none">
+            <span>Have an account? <button type="button" class="co-acct-link" onclick="coGoAccount()">Sign in</button> to check out faster and track your order. Or continue as guest below.</span>
+          </div>
+          <div id="co-account-hello" class="co-acct-hello" style="display:none"></div>
           <div class="section-heading">Contact</div>
           <div class="form-field"><label>Full Name</label><input id="co-name" type="text" placeholder="Kofi Mensah" autocomplete="name"></div>
           <div class="form-row-2">
@@ -966,6 +992,7 @@
         <div class="os-total"><span>Total</span><span id="os-total"></span></div>
       </div>
     </div>
+    </div><!-- /checkout-steps-wrap -->
   </div>
 </div>
 
@@ -988,16 +1015,16 @@
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=23"></script>
-<script src="js/images.js?v=23"></script>
-<script src="js/products-loader.js?v=23"></script>
-<script src="js/currency.js?v=23"></script>
-<script src="js/cart.js?v=23"></script>
-<script src="js/ui.js?v=23"></script>
-<script src="js/pdp.js?v=23"></script>
-<script src="js/pages.js?v=23"></script>
-<script src="js/checkout.js?v=23"></script>
-<script src="js/accounts.js?v=23"></script>
+<script src="js/products.js?v=25"></script>
+<script src="js/images.js?v=25"></script>
+<script src="js/products-loader.js?v=25"></script>
+<script src="js/currency.js?v=25"></script>
+<script src="js/cart.js?v=25"></script>
+<script src="js/ui.js?v=25"></script>
+<script src="js/pdp.js?v=25"></script>
+<script src="js/pages.js?v=25"></script>
+<script src="js/checkout.js?v=25"></script>
+<script src="js/accounts.js?v=25"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }
