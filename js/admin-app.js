@@ -46,6 +46,7 @@ async function renderOrders(){
       <select id="ord-filter" class="btn btn-ghost" onchange="renderOrders()" style="cursor:pointer">
         <option value="all">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option>
       </select>
+      <button class="btn btn-add" onclick="exportOrdersCSV()">Export CSV</button>
     </div><div id="orders-body">Loading...</div>`;
   await loadOrders();
   const filter = (document.getElementById('ord-filter')||{}).value || 'all';
@@ -69,6 +70,26 @@ async function renderOrders(){
       </div></div>`;
   }).join('');
 }
+function exportOrdersCSV(){
+  if(!ORDERS.length){ toast('No orders to export'); return; }
+  const rows = [['Order','Reference','Status','Total','Currency','Items','Ship Name','Ship Phone','Ship Address','Date']];
+  ORDERS.forEach(o=>{
+    const items = (o.items||[]).map(i=>`${i.qty}x ${i.name} (${i.color||''} ${i.size||''})`).join(' | ');
+    rows.push([
+      o.order_ref||('#'+o.id), o.username||'', o.status||'', o.total||'', o.currency||'GHS',
+      items, o.ship_name||'', o.ship_phone||'', (o.ship_address||'').replace(/\n/g,' '),
+      new Date(o.created_at).toLocaleString()
+    ]);
+  });
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sway-orders-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click(); URL.revokeObjectURL(url);
+  toast('Orders exported');
+}
+
 async function ordStatus(id,status){ const {error}=await sway_db.from('orders').update({status}).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked '+status); renderOrders(); }
 async function ordShip(id){ const t=prompt('Tracking note (optional, shown to customer):',''); const u={status:'shipped'}; if(t)u.tracking=t; const {error}=await sway_db.from('orders').update(u).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked shipped'); renderOrders(); }
 
