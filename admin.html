@@ -3,217 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SWAY — Add Series</title>
+<title>SWAY — Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase-config.js?v=13"></script>
 <script src="js/admin-guard.js?v=13"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f5f4; color:#0a0a0a; padding:24px; }
-  .wrap { max-width:640px; margin:0 auto; }
-  a.back { color:#666; text-decoration:none; font-size:13px; }
-  h1 { font-size:28px; margin-top:12px; }
-  .sub { color:#666; font-size:14px; margin-bottom:20px; }
-  .banner { background:#111; color:#fff; padding:14px 18px; border-radius:6px; font-size:13px; line-height:1.6; margin-bottom:24px; }
-  .card { background:#fff; border:1px solid #e5e5e4; border-radius:10px; padding:24px; margin-bottom:18px; }
-  .field { margin-bottom:16px; }
-  .field label { display:block; font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:#555; margin-bottom:6px; }
-  .field input, .field select, .field textarea { width:100%; padding:11px 12px; border:1.5px solid #ddd; border-radius:6px; font-size:14px; font-family:inherit; }
-  .field textarea { resize:vertical; }
-  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .chips { display:flex; gap:8px; flex-wrap:wrap; }
-  .chip { padding:8px 14px; border:1.5px solid #ddd; border-radius:20px; font-size:13px; cursor:pointer; user-select:none; }
-  .chip.on { background:#0a0a0a; color:#fff; border-color:#0a0a0a; }
-  .color-builder { border:1px dashed #ccc; border-radius:8px; padding:14px; margin-top:8px; }
-  .color-list { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
-  .color-item { display:flex; align-items:center; gap:10px; background:#fafafa; padding:8px 12px; border-radius:6px; font-size:13px; }
-  .color-item .dot { width:18px; height:18px; border-radius:50%; border:1px solid rgba(0,0,0,.2); }
-  .color-item .rm { margin-left:auto; color:#c0392b; cursor:pointer; font-size:12px; }
-  .add-color-row { display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:end; }
-  .add-color-row .field { margin:0; }
-  .mini-btn { background:#1a7f4b; color:#fff; border:none; padding:11px 14px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; }
-  .create-btn { width:100%; background:#1a7f4b; color:#fff; border:none; padding:16px; border-radius:8px; font-size:15px; font-weight:600; letter-spacing:.04em; cursor:pointer; }
-  .create-btn:disabled { opacity:.5; }
-  .preview { font-size:12px; color:#666; margin-top:10px; line-height:1.7; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f4f4f3; color:#0a0a0a; }
+  .layout { display:flex; min-height:100vh; }
+  /* Sidebar */
+  .sidebar { width:220px; background:#0a0a0a; color:#fff; padding:24px 0; position:fixed; top:0; bottom:0; left:0; overflow-y:auto; z-index:50; transition:transform .25s; }
+  .sb-logo { font-size:22px; font-weight:800; letter-spacing:.04em; padding:0 24px 24px; border-bottom:1px solid #222; }
+  .sb-nav { padding:12px 0; }
+  .sb-item { display:flex; align-items:center; gap:10px; padding:13px 24px; font-size:14px; color:#aaa; cursor:pointer; border:none; background:none; width:100%; text-align:left; font-weight:500; }
+  .sb-item:hover { color:#fff; background:#161616; }
+  .sb-item.active { color:#fff; background:#1a1a1a; border-left:3px solid #fff; padding-left:21px; }
+  .sb-foot { padding:16px 24px; border-top:1px solid #222; margin-top:12px; }
+  .sb-foot a, .sb-foot button { color:#888; font-size:12px; text-decoration:none; background:none; border:none; cursor:pointer; display:block; padding:6px 0; text-align:left; }
+  .sb-foot a:hover, .sb-foot button:hover { color:#fff; }
+  /* Main */
+  .main { flex:1; margin-left:220px; padding:28px 32px; max-width:100%; }
+  .page-head { font-size:26px; font-weight:800; letter-spacing:.02em; margin-bottom:4px; }
+  .page-sub { color:#666; font-size:14px; margin-bottom:24px; }
+  .hamburger { display:none; position:fixed; top:16px; left:16px; z-index:60; background:#0a0a0a; color:#fff; border:none; width:44px; height:44px; border-radius:8px; font-size:20px; cursor:pointer; }
+  .sb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:40; }
+  .section { display:none; }
+  .section.active { display:block; }
+  /* shared */
   .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#0a0a0a; color:#fff; padding:14px 24px; border-radius:6px; font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:100; }
   .toast.show { opacity:1; }
+  .btn { border:none; padding:11px 18px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn-add { background:#1a7f4b; color:#fff; }
+  .btn-ghost { background:#fff; border:1px solid #ddd; color:#333; }
+  .toolbar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+  /* stat cards */
+  .stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card { background:#fff; border:1px solid #e5e5e4; border-radius:10px; padding:20px; }
+  .stat-num { font-size:28px; font-weight:800; letter-spacing:-.01em; }
+  .stat-label { font-size:12px; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-top:4px; font-weight:600; }
+  @media (max-width:860px){
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .main { margin-left:0; padding:70px 18px 40px; }
+    .hamburger { display:block; }
+    .sb-overlay.open { display:block; }
+  }
 </style>
+<link rel="stylesheet" href="css/admin.css?v=13">
 </head>
 <body>
-<div class="wrap">
-  <a class="back" href="index.html">← Back to store</a>
-  <h1>Add a New Series</h1>
-  <p class="sub">Create a design and its colors. All the variants get made automatically, then you upload their photos in the Product Manager.</p>
-  <div class="banner">
-    This creates every color variant for the series in one go. After creating, go to the
-    <a href="image-manager.html" style="color:#fff;font-weight:700">Product Manager</a> to upload photos and set stock.
-  </div>
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-logo">SWAY</div>
+    <nav class="sb-nav">
+      <button class="sb-item active" onclick="adminNav('orders',this)">Orders</button>
+      <button class="sb-item" onclick="adminNav('inventory',this)">Inventory</button>
+      <button class="sb-item" onclick="adminNav('finance',this)">Finance</button>
+      <button class="sb-item" onclick="adminNav('products',this)">Products</button>
+      <button class="sb-item" onclick="adminNav('addseries',this)">Add Series</button>
+      <button class="sb-item" onclick="adminNav('siteimages',this)">Site Images</button>
+    </nav>
+    <div class="sb-foot">
+      <a href="index.html">← View store</a>
+      <button onclick="adminSignOut()">Sign out</button>
+    </div>
+  </aside>
 
-  <div class="card">
-    <div class="field">
-      <label>Series / Design Name</label>
-      <input id="s-name" placeholder="e.g. Phoenix">
-    </div>
-    <div class="field">
-      <label>Design slug (auto, lowercase-hyphenated)</label>
-      <input id="s-slug" placeholder="phoenix" oninput="this.dataset.touched=1">
-    </div>
-    <div class="row2">
-      <div class="field">
-        <label>Subtitle</label>
-        <input id="s-subtitle" placeholder="Graphic Tee" value="Graphic Tee">
-      </div>
-      <div class="field">
-        <label>Base Price (GHS)</label>
-        <input id="s-price" type="number" value="100">
-      </div>
-    </div>
-    <div class="field">
-      <label>Description</label>
-      <textarea id="s-desc" rows="3" placeholder="Short description shown on the product page"></textarea>
-    </div>
-    <div class="field">
-      <label>Stock per variant</label>
-      <input id="s-stock" type="number" value="10">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="field" style="margin-bottom:10px">
-      <label>Which genders?</label>
-      <div class="chips">
-        <div class="chip on" id="g-women" onclick="toggleChip(this)">Women</div>
-        <div class="chip on" id="g-men" onclick="toggleChip(this)">Men</div>
-      </div>
-    </div>
-
-    <div class="field" style="margin-bottom:10px">
-      <label>Colors for this series</label>
-      <div class="color-builder">
-        <div class="color-list" id="color-list"></div>
-        <div class="add-color-row">
-          <div class="field">
-            <label style="font-size:10px">Shirt</label>
-            <select id="c-shirt"><option value="White">White</option><option value="Black">Black</option></select>
-          </div>
-          <div class="field">
-            <label style="font-size:10px">Graphic color (optional)</label>
-            <select id="c-spark">
-              <option value="">None (plain shirt)</option>
-              <option value="Orange">Orange</option>
-              <option value="Blue">Blue</option>
-              <option value="Pink">Pink</option>
-              <option value="Green">Green</option>
-              <option value="Red">Red</option>
-              <option value="Purple">Purple</option>
-            </select>
-          </div>
-          <button class="mini-btn" onclick="addColor()">+ Add</button>
-        </div>
-        <div class="preview" id="women-only-note" style="display:none">Pink is often women-only. You control exactly which colors go on which gender by creating the series per gender if needed.</div>
-      </div>
-    </div>
-    <div class="preview" id="variant-preview"></div>
-  </div>
-
-  <button class="create-btn" id="create-btn" onclick="createSeries()">Create Series &amp; Variants</button>
+  <main class="main">
+    <!-- Sections injected/here -->
+    <div class="section active" id="sec-orders"></div>
+    <div class="section" id="sec-inventory"></div>
+    <div class="section" id="sec-finance"></div>
+    <div class="section" id="sec-products"></div>
+    <div class="section" id="sec-addseries"></div>
+    <div class="section" id="sec-siteimages"></div>
+  </main>
 </div>
 <div class="toast" id="toast"></div>
-
-<script>
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2600); }
-function toggleChip(el){ el.classList.toggle('on'); updatePreview(); }
-
-// auto slug from name
-document.getElementById('s-name').addEventListener('input', function(){
-  const slugEl = document.getElementById('s-slug');
-  if(!slugEl.dataset.touched){
-    slugEl.value = this.value.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  }
-  updatePreview();
-});
-
-const SPARKHEX={Orange:'#ff6b2b',Blue:'#3b8fff',Pink:'#e84a8a',Green:'#2ecc71',Red:'#e74c3c',Purple:'#9b59b6'};
-const SHIRTHEX={White:'#f2f2f2',Black:'#0a0a0a'};
-let colors = [];  // {shirt, spark, label, hex}
-
-function addColor(){
-  const shirt = document.getElementById('c-shirt').value;
-  const spark = document.getElementById('c-spark').value;
-  const label = spark ? `${shirt} / ${spark}` : shirt;
-  const hex = spark ? SPARKHEX[spark] : SHIRTHEX[shirt];
-  if(colors.some(c=>c.label===label)){ toast('That color is already added'); return; }
-  colors.push({shirt, spark, label, hex});
-  renderColors(); updatePreview();
-}
-function removeColor(i){ colors.splice(i,1); renderColors(); updatePreview(); }
-function renderColors(){
-  document.getElementById('color-list').innerHTML = colors.map((c,i)=>`
-    <div class="color-item">
-      <span class="dot" style="background:${c.hex}"></span>
-      <span>${c.label}</span>
-      <span class="rm" onclick="removeColor(${i})">Remove</span>
-    </div>`).join('') || '<span style="font-size:12px;color:#999">No colors yet. Add at least one.</span>';
-}
-
-function selectedGenders(){
-  const g=[];
-  if(document.getElementById('g-women').classList.contains('on')) g.push('women');
-  if(document.getElementById('g-men').classList.contains('on')) g.push('men');
-  return g;
-}
-
-function updatePreview(){
-  const genders = selectedGenders();
-  const total = genders.length * colors.length;
-  const name = document.getElementById('s-name').value.trim() || 'Series';
-  document.getElementById('variant-preview').textContent =
-    total ? `Will create ${total} variant${total!==1?'s':''}: ${name} in ${colors.map(c=>c.label).join(', ')} for ${genders.join(' & ')}.` : '';
-}
-
-async function createSeries(){
-  const name = document.getElementById('s-name').value.trim();
-  const slug = document.getElementById('s-slug').value.trim();
-  const genders = selectedGenders();
-  if(!name){ toast('Enter a series name'); return; }
-  if(!slug){ toast('Enter a design slug'); return; }
-  if(!genders.length){ toast('Pick at least one gender'); return; }
-  if(!colors.length){ toast('Add at least one color'); return; }
-
-  const btn=document.getElementById('create-btn'); btn.disabled=true; btn.textContent='Creating...';
-  try{
-    // series value: use the slug (or a cleaned series key)
-    const seriesKey = slug;
-    const subtitle = document.getElementById('s-subtitle').value.trim() || 'Graphic Tee';
-    const price = parseInt(document.getElementById('s-price').value)||100;
-    const stock = parseInt(document.getElementById('s-stock').value)||10;
-    const desc = document.getElementById('s-desc').value.trim();
-
-    // find next id
-    const {data:maxRows}=await sway_db.from('products').select('id').order('id',{ascending:false}).limit(1);
-    let nextId=(maxRows&&maxRows.length?maxRows[0].id:0)+1;
-
-    const rows=[];
-    genders.forEach(gender=>{
-      colors.forEach(c=>{
-        rows.push({
-          id: nextId++, gender, series: seriesKey, design: slug, name,
-          subtitle, shirt: c.shirt, spark: c.spark||null,
-          color: c.label, color_hex: c.hex,
-          price, is_new:true, is_best:false, img:'', imgs:[], description:desc, stock
-        });
-      });
-    });
-
-    const {error}=await sway_db.from('products').insert(rows);
-    if(error) throw new Error(error.message);
-    toast(`Created ${rows.length} variants for ${name}`);
-    setTimeout(()=>{ window.location.href='image-manager.html'; }, 1200);
-  }catch(e){ toast('Failed: '+e.message); btn.disabled=false; btn.textContent='Create Series & Variants'; }
-}
-
-function onAdminReady(){ renderColors(); updatePreview(); }
-renderColors(); updatePreview();
-</script>
+<script src="js/admin-app.js?v=13"></script>
 </body>
 </html>
