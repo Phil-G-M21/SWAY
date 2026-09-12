@@ -47,6 +47,7 @@ async function renderOrders(){
         <option value="all">All</option><option value="pending">Pending</option><option value="paid">Paid</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option>
       </select>
       <button class="btn btn-add" onclick="exportOrdersCSV()">Export CSV</button>
+      <button class="btn btn-ghost" onclick="clearCancelled()" style="color:#c0392b">Clear Cancelled</button>
     </div><div id="orders-body">Loading...</div>`;
   await loadOrders();
   const filter = (document.getElementById('ord-filter')||{}).value || 'all';
@@ -67,6 +68,7 @@ async function renderOrders(){
         ${st==='paid'?`<button class="ao-btn ao-ship-btn" onclick="ordShip(${o.id})">Mark Shipped</button>`:''}
         ${st==='shipped'?`<button class="ao-btn ao-deliver" onclick="ordStatus(${o.id},'delivered')">Mark Delivered</button>`:''}
         ${(st!=='delivered'&&st!=='cancelled')?`<button class="ao-btn ao-cancel" onclick="ordStatus(${o.id},'cancelled')">Cancel</button>`:''}
+        <button class="ao-btn ao-delete" onclick="ordDelete(${o.id})">Delete</button>
       </div></div>`;
   }).join('');
 }
@@ -91,6 +93,8 @@ function exportOrdersCSV(){
 }
 
 async function ordStatus(id,status){ const {error}=await sway_db.from('orders').update({status}).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked '+status); renderOrders(); }
+async function ordDelete(id){ if(!confirm('Permanently delete this order? This cannot be undone. Use this only for test orders.'))return; const {error}=await sway_db.from('orders').delete().eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Order deleted'); renderOrders(); }
+async function clearCancelled(){ const cancelled=ORDERS.filter(o=>o.status==='cancelled'); if(!cancelled.length){toast('No cancelled orders');return;} if(!confirm(`Delete all ${cancelled.length} cancelled orders permanently?`))return; const {error}=await sway_db.from('orders').delete().eq('status','cancelled'); if(error){toast('Failed: '+error.message);return;} toast('Cancelled orders cleared'); renderOrders(); }
 async function ordShip(id){ const t=prompt('Tracking note (optional, shown to customer):',''); const u={status:'shipped'}; if(t)u.tracking=t; const {error}=await sway_db.from('orders').update(u).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked shipped'); renderOrders(); }
 
 /* ══ INVENTORY ═══════════════════════════════════════════ */

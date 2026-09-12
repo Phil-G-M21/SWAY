@@ -89,3 +89,4 @@
 .si-fname { font-size:11px; color:#555; margin-top:8px; font-family:monospace; word-break:break-all; }
 .si-has { font-size:10px; color:#1a7f4b; font-weight:600; text-transform:uppercase; }
 .si-rm { color:#c0392b; cursor:pointer; margin-left:6px; }
+.ao-delete { background:#c0392b; color:#fff; }
