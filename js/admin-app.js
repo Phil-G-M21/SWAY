@@ -92,7 +92,7 @@ function exportOrdersCSV(){
   toast('Orders exported');
 }
 
-async function ordStatus(id,status){ const {error}=await sway_db.from('orders').update({status}).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked '+status); renderOrders(); }
+async function ordStatus(id,status){ const {error}=await sway_db.from('orders').update({status}).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked '+status); renderOrders(); updateOrdersBadge(); }
 async function ordDelete(id){ if(!confirm('Permanently delete this order? This cannot be undone. Use this only for test orders.'))return; const {error}=await sway_db.from('orders').delete().eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Order deleted'); renderOrders(); }
 async function clearCancelled(){ const cancelled=ORDERS.filter(o=>o.status==='cancelled'); if(!cancelled.length){toast('No cancelled orders');return;} if(!confirm(`Delete all ${cancelled.length} cancelled orders permanently?`))return; const {error}=await sway_db.from('orders').delete().eq('status','cancelled'); if(error){toast('Failed: '+error.message);return;} toast('Cancelled orders cleared'); renderOrders(); }
 async function ordShip(id){ const t=prompt('Tracking note (optional, shown to customer):',''); const u={status:'shipped'}; if(t)u.tracking=t; const {error}=await sway_db.from('orders').update(u).eq('id',id); if(error){toast('Failed: '+error.message);return;} toast('Marked shipped'); renderOrders(); }
@@ -163,7 +163,43 @@ async function renderFinance(){
 }
 
 /* boot after admin verified */
-function onAdminReady(){ renderOrders(); }
+// Count orders that need action (pending payment OR paid-but-not-shipped)
+async function updateOrdersBadge(){
+  try{
+    const { data } = await sway_db.from('orders').select('status');
+    if(!data) return;
+    const need = data.filter(o=>o.status==='pending'||o.status==='paid').length;
+    const badge = document.getElementById('orders-badge');
+    if(badge){
+      if(need>0){ badge.textContent = need; badge.style.display='inline-block'; }
+      else { badge.style.display='none'; }
+    }
+  }catch(e){}
+}
+
+// Poll for new orders every 30 seconds so you see them without reloading
+let _lastOrderCount = 0;
+async function pollOrders(){
+  try{
+    const { data } = await sway_db.from('orders').select('id,status').eq('status','paid');
+    const paidCount = (data||[]).length;
+    // if a new paid order appeared, alert
+    if(_lastOrderCount && paidCount > _lastOrderCount){
+      toast('New paid order received!');
+      // refresh the orders view if it's open
+      if(document.getElementById('sec-orders').classList.contains('active')) renderOrders();
+    }
+    _lastOrderCount = paidCount;
+    updateOrdersBadge();
+  }catch(e){}
+}
+
+function onAdminReady(){
+  renderOrders();
+  updateOrdersBadge();
+  pollOrders();
+  setInterval(pollOrders, 30000);   // check every 30s
+}
 
 /* ══ PRODUCTS ════════════════════════════════════════════ */
 async function renderProducts(){

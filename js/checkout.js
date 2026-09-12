@@ -23,8 +23,8 @@ const SWAY_MOMO_NETWORK= 'Telecel';               // the network
    That's it — MoMo and Card will process real payments.
    Until then it runs in demo mode (simulated confirmation).
 ═══════════════════════════════════════════════════════════ */
-const PAYSTACK_PUBLIC_KEY = '';            // <-- paste your pk_ key here
-const PAYSTACK_ENABLED    = false;         // <-- set true when key is added
+const PAYSTACK_PUBLIC_KEY = 'pk_live_84bc879a4ad58320777ab3f04fb32c6681056b3a';  // SWAY live public key
+const PAYSTACK_ENABLED    = true;          // live
 
 let coCurrentStep = 1, activePayTab = 'momo';
 
@@ -67,6 +67,12 @@ function closeCheckout() {
     document.body.style.overflow = '';
   }
 }
+function onRegionChange(){
+  const sel = document.getElementById('co-region');
+  selectedRegion = sel ? sel.value : '';
+  updateCheckoutSummary();
+}
+
 function coGoStep(n) {
   coCurrentStep = n;
   [1, 2, 3].forEach(i => {
@@ -76,7 +82,7 @@ function coGoStep(n) {
     el.classList.toggle('done', i < n);
   });
   updateCheckoutSummary();
-  if (n === 3) fillMomoDetails();
+  if (n === 3 && typeof choosePayMethod === 'function') choosePayMethod('instant');
 }
 
 // Fill the MoMo payment box with your account details + the customer's reference
@@ -106,8 +112,9 @@ function coNext(from) {
     if (!nm || !em.includes('@')) { showToast('Please fill in name and a valid email'); return; }
   }
   if (from === 2) {
+    if (!selectedRegion) { showToast('Please select your region'); return; }
     if (!document.getElementById('co-city').value.trim() || !document.getElementById('co-address').value.trim()) {
-      showToast('Please fill in city and address'); return;
+      showToast('Please fill in your town and street'); return;
     }
   }
   coGoStep(from + 1);
@@ -133,7 +140,9 @@ function updateCheckoutSummary() {
   if (!document.getElementById('os-subtotal')) return;
   const sub = cartSubtotal(), ship = cartShipping(), disc = cartDiscount(), total = cartTotal();
   setText('os-subtotal', fmt(sub));
-  setText('os-shipping', ship === 0 ? 'Free' : fmt(ship));
+  if (selectedRegion === 'Accra') setText('os-shipping', 'We call you');
+  else if (!selectedRegion) setText('os-shipping', 'Pick region');
+  else setText('os-shipping', fmt(ship));
   setText('os-total', fmt(total));
   const pr = document.getElementById('os-promo-row');
   if (pr) pr.style.display = promoApplied ? '' : 'none';
@@ -157,6 +166,88 @@ function updateCheckoutSummary() {
   }).join('');
 }
 
+
+/* Payment method chooser (instant Paystack vs manual MoMo) */
+let payMethod = 'instant';
+function choosePayMethod(m){
+  payMethod = m;
+  document.getElementById('pm-instant').classList.toggle('active', m==='instant');
+  document.getElementById('pm-manual').classList.toggle('active', m==='manual');
+  document.getElementById('pay-instant').style.display = m==='instant' ? 'block' : 'none';
+  document.getElementById('pay-manual').style.display = m==='manual' ? 'block' : 'none';
+  if (m==='manual') fillMomoDetails();
+}
+
+/* Instant payment via Paystack */
+async function payNow(){
+  const email = document.getElementById('co-email').value.trim();
+  if (!email) { showToast('Please enter your email'); return; }
+  if (!PAYSTACK_ENABLED || !PAYSTACK_PUBLIC_KEY || typeof PaystackPop === 'undefined') {
+    showToast('Card/instant payment is not available right now. Please use MoMo Transfer.');
+    return;
+  }
+  const total = cartTotal();
+  const orderNum = 'SW' + Date.now().toString().slice(-6) + Math.floor(Math.random()*90+10);
+  const ref = window._swayOrderRef || (document.getElementById('co-name')||{}).value?.trim() || '';
+
+  const handler = PaystackPop.setup({
+    key: PAYSTACK_PUBLIC_KEY,
+    email: email,
+    amount: total * 100,            // pesewas
+    currency: 'GHS',
+    ref: orderNum,
+    channels: ['card','mobile_money'],
+    label: 'SWAY',
+    metadata: {
+      custom_fields: [
+        { display_name:'Store', variable_name:'store', value:'SWAY' },
+        { display_name:'Name', variable_name:'name', value:(document.getElementById('co-name')||{}).value||'' }
+      ]
+    },
+    callback: function(response){
+      // Payment succeeded — save as PAID (auto-confirmed).
+      // Admin is notified by: Paystack's own email + the admin dashboard alert.
+      savePaidOrder(orderNum, email, ref, response.reference);
+      showOrderConfirmedPaid(orderNum, email, ref);
+    },
+    onClose: function(){ showToast('Payment window closed'); }
+  });
+  handler.openIframe();
+}
+
+async function savePaidOrder(orderNum, email, ref, payref){
+  if (typeof sway_db === 'undefined') return;
+  try {
+    const { data: u } = await sway_db.auth.getUser();
+    const items = cart.map(i => ({ name:i.product.name, color:i.product.color, size:i.size, qty:i.qty, price:i.product.price }));
+    await sway_db.from('orders').insert({
+      user_id: u?.user?.id || null, order_ref: orderNum, username: ref, items,
+      subtotal: cartSubtotal(), shipping: cartShipping(), total: cartTotal(),
+      currency:'GHS', status:'paid',
+      ship_name:(document.getElementById('co-name')||{}).value||'',
+      ship_phone:(document.getElementById('co-phone')||{}).value||'',
+      ship_address: (selectedRegion?('['+selectedRegion+'] '):'') + ((document.getElementById('co-city')||{}).value||'') + ', ' + ((document.getElementById('co-address')||{}).value||''),
+      admin_note:'Paystack ref: '+(payref||'')
+    });
+  } catch(e){ console.warn('Order save failed:', e); }
+}
+
+function showOrderConfirmedPaid(orderNum, email, ref){
+  const total = cartTotal();
+  setText('oc-sub', 'Payment received. Your order is confirmed.');
+  document.getElementById('oc-details').innerHTML = `
+    <div class="oc-row"><span class="label">Order</span><span>${orderNum}</span></div>
+    <div class="oc-row"><span class="label">Total</span><span>${fmt(total)} (GHS ${total})</span></div>
+    <div class="oc-row"><span class="label">Status</span><span>Paid</span></div>`;
+  setText('oc-next', selectedRegion === 'Accra'
+    ? 'Payment received for your clothes. We will call you shortly to arrange your Accra delivery and its fee. Track your order under My Orders.'
+    : 'We are preparing your order for doorstep delivery. You will get an update when it ships. Track it anytime under My Orders.');
+  closeCheckout();
+  document.getElementById('order-confirmed').classList.add('open');
+  cart = []; promoApplied = false; promoRate = 0;
+  saveCart(); renderCart(); updateCartBadge(); updateMobileCart();
+}
+
 async function placeOrder() {
   const email = document.getElementById('co-email').value.trim();
   if (!email) { showToast('Please enter your email'); return; }
@@ -167,7 +258,7 @@ async function placeOrder() {
   const btn = document.getElementById('place-order-btn');
   btn.disabled = true; btn.textContent = 'Placing order...';
 
-  const orderNum = 'SW' + Date.now().toString().slice(-6);
+  const orderNum = 'SW' + Date.now().toString().slice(-6) + Math.floor(Math.random()*90+10);
   const ref = window._swayOrderRef || (document.getElementById('co-name')||{}).value?.trim() || '';
 
   // Create a PENDING order in the database (awaiting your MoMo confirmation)
@@ -200,10 +291,19 @@ async function savePendingOrder(orderNum, email, ref){
       currency: 'GHS', status: 'pending',
       ship_name: (document.getElementById('co-name')||{}).value || '',
       ship_phone: (document.getElementById('momo-number')||{}).value || '',
-      ship_address: (document.getElementById('co-address')||{}).value || ''
+      ship_address: (selectedRegion?('['+selectedRegion+'] '):'') + ((document.getElementById('co-city')||{}).value||'') + ', ' + ((document.getElementById('co-address')||{}).value||'')
     });
     return !error;
   } catch(e){ console.warn('Order save failed:', e); return false; }
+}
+
+// Notify admin of a PAID (Paystack) order
+function notifyAdminPaidOrder(orderNum, ref, email){
+  const total = cartTotal();
+  const items = cart.map(i => `${i.qty}x ${i.product.name} (${i.product.color}, ${i.size})`).join(', ');
+  const adminWA = (typeof SWAY_WHATSAPP !== 'undefined') ? SWAY_WHATSAPP : '233204725809';
+  const text = encodeURIComponent(`PAID ORDER ${orderNum}\nCustomer: ${email}\nTotal: GHS ${total}\nItems: ${items}\n\nPayment confirmed via Paystack. Ready to ship.`);
+  window.open('https://wa.me/' + adminWA + '?text=' + text, '_blank');
 }
 
 // Open WhatsApp to the admin with the new order details
@@ -237,7 +337,7 @@ function showOrderConfirmedPending(orderNum, email, ref){
 /* Real payment — runs when Paystack is configured */
 function payWithPaystack(email) {
   const total = cartTotal();                 // total in GHS
-  const orderNum = 'SW' + Date.now().toString().slice(-6);
+  const orderNum = 'SW' + Date.now().toString().slice(-6) + Math.floor(Math.random()*90+10);
   const handler = PaystackPop.setup({
     key: PAYSTACK_PUBLIC_KEY,
     email: email,
@@ -268,7 +368,7 @@ function payWithPaystack(email) {
 function demoPayment(email) {
   const btn = document.getElementById('place-order-btn');
   btn.disabled = true; btn.textContent = 'Processing…';
-  const orderNum = 'SW' + Date.now().toString().slice(-6);
+  const orderNum = 'SW' + Date.now().toString().slice(-6) + Math.floor(Math.random()*90+10);
   setTimeout(() => {
     showOrderConfirmed(orderNum, email);
     btn.disabled = false; btn.textContent = 'Place Order';
@@ -289,7 +389,7 @@ async function saveOrderToDB(orderNum, email){
       currency: 'GHS', status: 'paid',
       ship_name: (document.getElementById('co-name')||{}).value || '',
       ship_phone: (document.getElementById('momo-number')||{}).value || '',
-      ship_address: (document.getElementById('co-address')||{}).value || ''
+      ship_address: (selectedRegion?('['+selectedRegion+'] '):'') + ((document.getElementById('co-city')||{}).value||'') + ', ' + ((document.getElementById('co-address')||{}).value||'')
     });
   } catch(e){ console.warn('Order save skipped:', e); }
 }
@@ -310,4 +410,16 @@ function showOrderConfirmed(orderNum, email) {
   cart = []; promoApplied = false; promoRate = 0;
   saveCart();
   renderCart(); updateCartBadge(); updateMobileCart();
+}
+
+/* Thank-you screen buttons */
+function ocClose(){
+  document.getElementById('order-confirmed').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function ocViewOrders(){
+  ocClose();
+  if (typeof showSection === 'function') showSection('account');
+  // switch to orders tab if logged in
+  setTimeout(()=>{ const t=document.querySelector('.acct-tab'); if(t && typeof acctTab==='function') acctTab('orders', t); }, 200);
 }

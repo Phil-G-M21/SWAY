@@ -882,3 +882,21 @@
 .momo-val { font-size:15px; font-weight:600; color:#0a0a0a; }
 .momo-ref .momo-val { background:#fff3cd; padding:4px 12px; border-radius:5px; }
 .momo-warn { font-size:12px; color:#8a6d00; background:#fff8e1; padding:10px 12px; border-radius:6px; margin-top:14px; line-height:1.5; }
+
+/* Payment method chooser */
+.pay-methods { display:flex; gap:10px; margin-bottom:18px; }
+.pay-method { flex:1; background:#fff; border:1.5px solid var(--border); border-radius:8px; padding:16px; cursor:pointer; text-align:left; display:flex; flex-direction:column; gap:4px; transition:border-color .2s; }
+.pay-method:hover { border-color:#999; }
+.pay-method.active { border-color:#0a0a0a; background:#fafafa; }
+.pm-title { font-size:15px; font-weight:600; }
+.pm-sub { font-size:12px; color:#777; }
+.pay-note { font-size:13px; color:#555; line-height:1.6; background:#f8f8f7; padding:14px; border-radius:8px; }
+
+/* Thank-you screen extras */
+.oc-next { font-size:14px; color:#555; line-height:1.6; margin:16px 0 8px; max-width:400px; }
+.oc-btn-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.oc-vieworder { background:none; border:1.5px solid #0a0a0a; color:#0a0a0a; padding:14px 24px; border-radius:6px; font-size:13px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; }
+.oc-vieworder:hover { background:#0a0a0a; color:#fff; }
+
+/* Checkout delivery note */
+.ship-note { font-size:13px; color:#555; line-height:1.6; background:#f8f8f7; padding:12px 14px; border-radius:8px; margin-bottom:16px; }

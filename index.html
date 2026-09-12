@@ -43,12 +43,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css?v=16">
-<link rel="stylesheet" href="css/layout.css?v=16">
-<link rel="stylesheet" href="css/components.css?v=16">
+<link rel="stylesheet" href="css/base.css?v=23">
+<link rel="stylesheet" href="css/layout.css?v=23">
+<link rel="stylesheet" href="css/components.css?v=23">
 <!-- Supabase (backend: database, storage, auth) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase-config.js?v=16"></script>
+<script src="js/supabase-config.js?v=23"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
 <body>
 
@@ -792,7 +793,7 @@
         <div class="pdp-accordion">
           <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Product Details</span><span class="acc-icon">+</span></button><div class="acc-body open"><div class="acc-body-inner" id="acc-details"></div></div></div>
           <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Fit &amp; Sizing</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Cropped fit that sits above the hip. Model is 5'10" / 178cm and wears a Medium. Size up for an oversized look.</div></div></div>
-          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Shipping &amp; Returns</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Free shipping on orders over GHS 600. Accra: 1 to 2 days. Kumasi and other regions: 2 to 4 days. International: 7 to 14 days. Returns within 14 days, unworn and in original packaging.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Shipping &amp; Returns</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Doorstep delivery across Ghana, 1 to 2 days. Delivery fee depends on your region and is added at checkout. Accra customers pay only for the clothes, we call to arrange the local delivery fee. Returns within 14 days, unworn and in original packaging.</div></div></div>
           <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span>Care</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-inner">Machine wash cold, inside out. Do not bleach. Tumble dry low. Do not iron on the graphic.</div></div></div>
         </div>
         <div class="pdp-related" id="pdp-related" style="display:none">
@@ -888,48 +889,70 @@
           <button class="place-order-btn" onclick="coNext(1)">Continue to Shipping →</button>
         </div>
         <div id="co-step2" style="display:none">
-          <div class="section-heading">Shipping</div>
-          <div class="form-field"><label>Country</label>
-            <select id="co-country">
-              <option value="GH">Ghana</option><option value="NG">Nigeria</option>
-              <option value="KE">Kenya</option><option value="ZA">South Africa</option>
-              <option value="GB">United Kingdom</option><option value="US">United States</option>
-              <option value="CA">Canada</option><option value="AE">UAE</option>
-              <option value="OTHER">Other</option>
+          <div class="section-heading">Delivery</div>
+          <p class="ship-note">Doorstep delivery across Ghana, 1 to 2 days. Pick your region, the fee is added to your total. Fill your town and street below.</p>
+          <div class="form-field"><label>Region (sets delivery fee)</label>
+            <select id="co-region" onchange="onRegionChange()">
+              <option value="">Select your region</option>
+              <option value="Accra">Accra — pay only for clothes (we call you for delivery)</option>
+              <option value="Kumasi">Kumasi — GHS 65</option>
+              <option value="Koforidua">Koforidua — GHS 80</option>
+              <option value="Ho">Ho — GHS 80</option>
+              <option value="Cape Coast">Cape Coast — GHS 80</option>
+              <option value="Sunyani">Sunyani — GHS 80</option>
+              <option value="Takoradi">Takoradi — GHS 80</option>
+              <option value="Tarkwa">Tarkwa — GHS 80</option>
+              <option value="Tamale">Tamale — GHS 85</option>
             </select>
           </div>
-          <div class="form-field"><label>City</label><input id="co-city" type="text" placeholder="Accra" autocomplete="address-level2"></div>
-          <div class="form-field"><label>Address</label><input id="co-address" type="text" placeholder="Street address" autocomplete="street-address"></div>
-          <div class="form-row-2">
-            <div class="form-field"><label>Region</label><input id="co-region" type="text" placeholder="Greater Accra" autocomplete="address-level1"></div>
-            <div class="form-field"><label>Postal (optional)</label><input id="co-postal" type="text" placeholder="GA-123"></div>
-          </div>
-          <div class="form-field"><label>Delivery</label>
-            <select id="co-delivery">
-              <option value="standard">Standard. Free (3 to 5 days)</option>
-              <option value="express">Express. GHS 30 (1 to 2 days)</option>
-            </select>
-          </div>
+          <div class="form-field"><label>Town / Area</label><input id="co-city" type="text" placeholder="e.g. Ahodwo, Adum" autocomplete="address-level2"></div>
+          <div class="form-field"><label>Street / House / Landmark</label><input id="co-address" type="text" placeholder="Street, house number or a landmark" autocomplete="street-address"></div>
+          <input type="hidden" id="co-country" value="GH">
           <div style="display:flex;gap:10px;margin-top:8px">
             <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(2)">← Back</button>
             <button class="place-order-btn" style="flex:1" onclick="coNext(2)">Continue to Payment →</button>
           </div>
         </div>
         <div id="co-step3" style="display:none">
-          <div class="section-heading">Pay with Mobile Money</div>
-          <div class="momo-pay-box">
-            <p class="momo-intro">Send the total to the MoMo account below, then place your order. We confirm your payment and ship once received.</p>
-            <div class="momo-detail"><span class="momo-lbl">Amount</span><span class="momo-val" id="momo-amount">GHS 0</span></div>
-            <div class="momo-detail"><span class="momo-lbl">Network</span><span class="momo-val" id="momo-pay-network">—</span></div>
-            <div class="momo-detail"><span class="momo-lbl">MoMo Number</span><span class="momo-val" id="momo-pay-number">—</span></div>
-            <div class="momo-detail"><span class="momo-lbl">Account Name</span><span class="momo-val" id="momo-pay-name">—</span></div>
-            <div class="momo-detail momo-ref"><span class="momo-lbl">Reference (important)</span><span class="momo-val" id="momo-ref">—</span></div>
-            <p class="momo-warn">Use your reference above when sending money, so we can match your payment. MoMo accounts show different names, the reference is how we find your order.</p>
+          <div class="section-heading">Payment</div>
+
+          <!-- Method choice -->
+          <div class="pay-methods">
+            <button class="pay-method active" id="pm-instant" onclick="choosePayMethod('instant')">
+              <span class="pm-title">Pay Now</span>
+              <span class="pm-sub">Card or Mobile Money. Instant, secure.</span>
+            </button>
+            <button class="pay-method" id="pm-manual" onclick="choosePayMethod('manual')">
+              <span class="pm-title">MoMo Transfer</span>
+              <span class="pm-sub">Send to our MoMo, we confirm.</span>
+            </button>
           </div>
-          <div class="form-field" style="margin-top:16px"><label>Your MoMo number (the one you'll pay from)</label><input id="momo-number" type="tel" placeholder="024 000 0000"></div>
-          <div style="display:flex;gap:10px;margin-top:12px">
-            <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
-            <button class="place-order-btn" style="flex:1" id="place-order-btn" onclick="placeOrder()">I've Sent Payment · Place Order</button>
+
+          <!-- Instant (Paystack) -->
+          <div id="pay-instant">
+            <p class="pay-note">You'll be taken to a secure payment window to pay by card or mobile money. Your order is confirmed automatically.</p>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
+              <button class="place-order-btn" style="flex:1" id="pay-now-btn" onclick="payNow()">Pay Now</button>
+            </div>
+          </div>
+
+          <!-- Manual MoMo -->
+          <div id="pay-manual" style="display:none">
+            <div class="momo-pay-box">
+              <p class="momo-intro">Send the total to the MoMo account below, then place your order. We confirm your payment and ship once received.</p>
+              <div class="momo-detail"><span class="momo-lbl">Amount</span><span class="momo-val" id="momo-amount">GHS 0</span></div>
+              <div class="momo-detail"><span class="momo-lbl">Network</span><span class="momo-val" id="momo-pay-network">—</span></div>
+              <div class="momo-detail"><span class="momo-lbl">MoMo Number</span><span class="momo-val" id="momo-pay-number">—</span></div>
+              <div class="momo-detail"><span class="momo-lbl">Account Name</span><span class="momo-val" id="momo-pay-name">—</span></div>
+              <div class="momo-detail momo-ref"><span class="momo-lbl">Reference (important)</span><span class="momo-val" id="momo-ref">—</span></div>
+              <p class="momo-warn">Use your reference above when sending money, so we can match your payment. MoMo accounts show different names, the reference is how we find your order.</p>
+            </div>
+            <div class="form-field" style="margin-top:16px"><label>Your MoMo number (the one you'll pay from)</label><input id="momo-number" type="tel" placeholder="024 000 0000"></div>
+            <div style="display:flex;gap:10px;margin-top:12px">
+              <button class="place-order-btn" style="background:#fff;color:#0a0a0a;border:1.5px solid #e0e0e0;flex:0 0 auto;width:auto;padding:17px 24px" onclick="coBack(3)">← Back</button>
+              <button class="place-order-btn" style="flex:1" id="place-order-btn" onclick="placeOrder()">I've Sent Payment · Place Order</button>
+            </div>
           </div>
         </div>
       </div>
@@ -954,23 +977,27 @@
     <div class="oc-title">Thank You.</div>
     <div class="oc-sub" id="oc-sub"></div>
     <div class="oc-details" id="oc-details"></div>
-    <button class="oc-continue" onclick="document.getElementById('order-confirmed').classList.remove('open');document.body.style.overflow=''">Continue Shopping</button>
+    <p class="oc-next" id="oc-next"></p>
+    <div class="oc-btn-row">
+      <button class="oc-continue" onclick="ocClose()">Continue Shopping</button>
+      <button class="oc-vieworder" onclick="ocViewOrders()">View My Orders</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <!-- ══ SCRIPTS ════════════════════════════════════ -->
-<script src="js/products.js?v=16"></script>
-<script src="js/images.js?v=16"></script>
-<script src="js/products-loader.js?v=16"></script>
-<script src="js/currency.js?v=16"></script>
-<script src="js/cart.js?v=16"></script>
-<script src="js/ui.js?v=16"></script>
-<script src="js/pdp.js?v=16"></script>
-<script src="js/pages.js?v=16"></script>
-<script src="js/checkout.js?v=16"></script>
-<script src="js/accounts.js?v=16"></script>
+<script src="js/products.js?v=23"></script>
+<script src="js/images.js?v=23"></script>
+<script src="js/products-loader.js?v=23"></script>
+<script src="js/currency.js?v=23"></script>
+<script src="js/cart.js?v=23"></script>
+<script src="js/ui.js?v=23"></script>
+<script src="js/pdp.js?v=23"></script>
+<script src="js/pages.js?v=23"></script>
+<script src="js/checkout.js?v=23"></script>
+<script src="js/accounts.js?v=23"></script>
 <script>
 /* ── Account modal ── */
 function openAccount()  { showSection('account'); }

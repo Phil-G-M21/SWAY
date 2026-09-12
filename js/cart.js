@@ -35,7 +35,25 @@ function saveCart() { localStorage.setItem('sway-cart', JSON.stringify(cart)); }
 function saveWish() { localStorage.setItem('sway-wish', JSON.stringify([...wishlist])); }
 
 function cartSubtotal() { return cart.reduce((s, i) => s + i.product.price * i.qty, 0); }
-function cartShipping() { return cartSubtotal() >= 600 ? 0 : 30; }
+
+// ── Region shipping fees (Accra to doorstep). Add more regions here later. ──
+const SWAY_REGIONS = {
+  'Accra':      0,    // free at checkout — delivery fee arranged by phone
+  'Kumasi':     65,
+  'Koforidua':  80,
+  'Ho':         80,
+  'Cape Coast': 80,
+  'Sunyani':    80,
+  'Takoradi':   80,
+  'Tarkwa':     80,
+  'Tamale':     85,
+};
+let selectedRegion = '';   // set when the customer picks a region at checkout
+
+function cartShipping() {
+  if (!selectedRegion) return 0;                 // none picked yet
+  return SWAY_REGIONS[selectedRegion] ?? 0;
+}
 function cartDiscount() { return promoApplied ? Math.round(cartSubtotal() * promoRate) : 0; }
 function cartTotal()    { return cartSubtotal() + cartShipping() - cartDiscount(); }
 
