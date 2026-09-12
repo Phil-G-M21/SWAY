@@ -146,9 +146,11 @@ footer { border-top: 1px solid var(--border); padding: 44px 24px 28px; display: 
 .footer-col h4 { font-size: 10px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
 .footer-col a, .footer-col button { display: block; font-size: 13px; color: #777; margin-bottom: 9px; text-decoration: none; background: none; border: none; text-align: left; padding: 0; transition: color .2s; }
 .footer-col a:hover, .footer-col button:hover { color: var(--black); }
-.footer-social { display: flex; gap: 12px; margin-top: 4px; }
-.footer-social a { color: #777; font-size: 12px; letter-spacing: .04em; }
-.footer-social a:hover { color: var(--black); }
+.footer-social { display: flex; gap: 14px; margin-top: 4px; align-items: center; }
+.social-ic { color: #fff; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,.25); border-radius: 50%; transition: all .2s; }
+.social-ic:hover { background: #fff; color: #0a0a0a; border-color: #fff; }
+.mob-menu-foot { display: flex; gap: 14px; align-items: center; }
+.mob-menu-foot .social-ic { color: #fff; }
 .footer-bottom { border-top: 1px solid var(--border); padding: 18px 24px; font-size: 11px; color: #bbb; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; align-items: center; }
 .pay-chips { display: flex; gap: 6px; }
 .pay-chip { font-size: 10px; background: #f5f5f5; padding: 3px 8px; border-radius: 2px; color: #aaa; letter-spacing: .04em; }
@@ -384,6 +386,14 @@ footer { border-top: 1px solid var(--border); padding: 44px 24px 28px; display: 
   text-decoration: none;
   text-transform: uppercase;
 }
+.mob-menu-foot a.social-ic {
+  color: #fff !important;
+  width: 42px; height: 42px;
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.mob-menu-foot a.social-ic:hover { background:#fff; color:#0a0a0a !important; }
 
 /* ── Account modal ── */
 .account-modal-bg { position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:700;display:none;align-items:center;justify-content:center;padding:24px }
@@ -644,3 +654,9 @@ a.contact-method:hover { border-color: #0a0a0a; }
 /* Order cancel button */
 .order-cancel { margin-top: 12px; background: none; border: 1px solid #e0b4b0; color: #c0392b; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 6px; cursor: pointer; letter-spacing: .03em; }
 .order-cancel:hover { background: #fdf0ef; }
+
+/* Shipping fees list */
+.ship-fees { list-style: none; padding: 0; margin: 8px 0 18px; }
+.ship-fees li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
+.ship-fees li span:first-child { font-weight: 600; color: #0a0a0a; min-width: 110px; }
+.ship-fees li span:last-child { color: #4a4a4a; text-align: right; }
