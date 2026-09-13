@@ -124,30 +124,58 @@ async function renderInventory(){
 async function saveStock(id){ const v=parseInt(document.getElementById('inv-'+id).value)||0; const {error}=await sway_db.from('products').update({stock:v}).eq('id',id); if(error){toast('Failed');return;} toast('Stock updated'); renderInventory(); }
 
 /* ══ FINANCE ═════════════════════════════════════════════ */
+// Business constants
+const TEE_PRICE = 150;   // sell price per tee
+const TEE_COST  = 130;   // cost to make one tee
+const TEE_PROFIT = TEE_PRICE - TEE_COST;  // 20 per tee
+
+// Count tees in an order (sum of item quantities)
+function teesInOrder(o){ return (o.items||[]).reduce((s,i)=>s+(i.qty||0),0); }
+
 async function renderFinance(){
   const el=document.getElementById('sec-finance');
   await loadOrders();
-  // Only paid/shipped/delivered count as revenue
+  // Only paid/shipped/delivered count
   const earned=ORDERS.filter(o=>['paid','shipped','delivered'].includes(o.status));
-  const revenue=earned.reduce((s,o)=>s+Number(o.total||0),0);
+
+  // Tees sold (across confirmed orders)
+  const teesSold = earned.reduce((s,o)=>s+teesInOrder(o), 0);
+
+  // Revenue = tees x 150 (EXCLUDES shipping)
+  const revenue = teesSold * TEE_PRICE;
+  // Cost = tees x 130
+  const cost = teesSold * TEE_COST;
+  // Profit = tees x 20
+  const profit = teesSold * TEE_PROFIT;
+  // Shipping collected (shown separately, NOT in revenue/profit)
+  const shipping = earned.reduce((s,o)=>s+Number(o.shipping||0), 0);
+
   const pending=ORDERS.filter(o=>o.status==='pending').length;
   const byStatus=['pending','paid','shipped','delivered','cancelled'].map(s=>({s,n:ORDERS.filter(o=>o.status===s).length}));
-  // best sellers
+
+  // best sellers by qty
   const tally={};
   earned.forEach(o=>(o.items||[]).forEach(i=>{ const k=i.name+' '+(i.color||''); tally[k]=(tally[k]||0)+(i.qty||0); }));
   const best=Object.entries(tally).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  // revenue over time (by day, last 14)
+
+  // revenue over time (by day, last 14) — tees x 150, no shipping
   const days={};
-  earned.forEach(o=>{ const d=new Date(o.created_at).toLocaleDateString(); days[d]=(days[d]||0)+Number(o.total||0); });
+  earned.forEach(o=>{ const d=new Date(o.created_at).toLocaleDateString(); days[d]=(days[d]||0)+teesInOrder(o)*TEE_PRICE; });
   const dayEntries=Object.entries(days).slice(-14);
   const maxDay=Math.max(1,...dayEntries.map(d=>d[1]));
 
-  el.innerHTML=`<div class="page-head">Finance</div><div class="page-sub">Revenue counts confirmed orders (paid, shipped, delivered).</div>
+  el.innerHTML=`<div class="page-head">Finance</div><div class="page-sub">Confirmed orders only (paid, shipped, delivered). Revenue and profit exclude shipping.</div>
     <div class="stat-row">
-      <div class="stat-card"><div class="stat-num">GHS ${revenue.toLocaleString()}</div><div class="stat-label">Revenue</div></div>
+      <div class="stat-card"><div class="stat-num">GHS ${revenue.toLocaleString()}</div><div class="stat-label">Revenue (tees x 150)</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#1a7f4b">GHS ${profit.toLocaleString()}</div><div class="stat-label">Profit (x 20/tee)</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#c0392b">GHS ${cost.toLocaleString()}</div><div class="stat-label">Cost (x 130/tee)</div></div>
+      <div class="stat-card"><div class="stat-num">${teesSold}</div><div class="stat-label">Tees Sold</div></div>
+    </div>
+    <div class="stat-row">
       <div class="stat-card"><div class="stat-num">${earned.length}</div><div class="stat-label">Confirmed Orders</div></div>
       <div class="stat-card"><div class="stat-num" style="color:#e0a800">${pending}</div><div class="stat-label">Pending</div></div>
-      <div class="stat-card"><div class="stat-num">GHS ${earned.length?Math.round(revenue/earned.length):0}</div><div class="stat-label">Avg Order</div></div>
+      <div class="stat-card"><div class="stat-num">GHS ${shipping.toLocaleString()}</div><div class="stat-label">Shipping Collected</div></div>
+      <div class="stat-card"><div class="stat-num">GHS ${earned.length?Math.round(revenue/earned.length):0}</div><div class="stat-label">Avg Order (tees)</div></div>
     </div>
     <div class="fin-grid">
       <div class="fin-card"><h3>Revenue (last ${dayEntries.length} days)</h3>
@@ -259,7 +287,7 @@ function renderAddSeries(){
       <div class="pef"><label>Series / Design Name</label><input id="as-name" placeholder="e.g. Phoenix" oninput="asSlug()"></div>
       <div class="pef"><label>Design slug</label><input id="as-slug" placeholder="phoenix"></div>
       <div class="pef"><label>Subtitle</label><input id="as-sub" value="Graphic Tee"></div>
-      <div class="pef"><label>Base Price (GHS)</label><input id="as-price" type="number" value="100"></div>
+      <div class="pef"><label>Base Price (GHS)</label><input id="as-price" type="number" value="150"></div>
       <div class="pef pef-desc"><label>Description</label><textarea id="as-desc" rows="2"></textarea></div>
       <div class="pef"><label>Stock per variant</label><input id="as-stock" type="number" value="10"></div>
       <div class="pef"><label>Genders</label><div class="as-chips"><span class="as-chip on" id="asg-women" onclick="this.classList.toggle('on');asPreview()">Women</span><span class="as-chip on" id="asg-men" onclick="this.classList.toggle('on');asPreview()">Men</span></div></div>
@@ -287,7 +315,7 @@ function asPreview(){ const g=asGenders(); const total=g.length*seriesColors.len
 async function asCreate(){
   const name=document.getElementById('as-name').value.trim(); const slug=document.getElementById('as-slug').value.trim(); const g=asGenders();
   if(!name||!slug){toast('Name and slug required');return;} if(!g.length){toast('Pick a gender');return;} if(!seriesColors.length){toast('Add a color');return;}
-  const sub=document.getElementById('as-sub').value.trim()||'Graphic Tee'; const price=parseInt(document.getElementById('as-price').value)||100; const stock=parseInt(document.getElementById('as-stock').value)||10; const desc=document.getElementById('as-desc').value.trim();
+  const sub=document.getElementById('as-sub').value.trim()||'Graphic Tee'; const price=parseInt(document.getElementById('as-price').value)||150; const stock=parseInt(document.getElementById('as-stock').value)||10; const desc=document.getElementById('as-desc').value.trim();
   try{
     await loadProducts(); const dupCheck=PRODUCTS.filter(p=>p.design===slug);
     const {data:maxRows}=await sway_db.from('products').select('id').order('id',{ascending:false}).limit(1); let nextId=(maxRows&&maxRows.length?maxRows[0].id:0)+1;

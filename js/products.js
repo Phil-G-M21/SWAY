@@ -13,7 +13,7 @@
  */
 
 const SWAY_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
-const BASE_GHS   = 100;
+const BASE_GHS   = 150;
 
 const WIDE_IMGS = ['wide1.jpg','wide2.jpg','wide3.jpg','wide4.jpg','wide5.jpg','fwide1.jpg','fwide2.jpg','fwide3.jpg','fwide4.jpg','fwide5.jpg'];
 const PORT_IMGS = ['model1.jpg','model2.jpg','model3.jpg','model4.jpg','model5.jpg','fmodel1.jpg','fmodel2.jpg','fmodel3.jpg','fmodel4.jpg','fmodel5.jpg'];
